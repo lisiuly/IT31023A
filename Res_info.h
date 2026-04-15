@@ -1,0 +1,2 @@
+/* Resource Info C File */
+

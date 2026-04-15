@@ -1,0 +1,569 @@
+overlapgroup Z_OLP_BEGIN: DO_NOT_DELETE_Z_OLP_BEGIN
+overlapgroup N_OLP_BEGIN: DO_NOT_DELETE_N_OLP_BEGIN
+overlapgroup Z_LEAF_OLP: OSEC0, OSEC1, OSEC2, OSEC3, OSEC4, OSEC5, OSEC6, OSEC7, OSEC8, OSEC9, OSEC10, OSEC11, OSEC12, OSEC13, OSEC14, OSEC15, OSEC16, OSEC17, OSEC18, OSEC19, OSEC20, OSEC21, OSEC22, OSEC23, OSEC24, OSEC25, OSEC26, OSEC27, OSEC28, OSEC29, OSEC30, OSEC31, OSEC32, OSEC33, OSEC34, OSEC35, OSEC36, OSEC37, OSEC38, OSEC39, OSEC40
+
+locate: PAGE0 at 00h reference
+locate: Z_LEAF_OLP after PAGE0
+;locate: Z_OLP_BEGIN after Z_LEAF_OLP
+; To add user-defined Zpage sections:
+; 1. Replace the previous line, "locate: Z_OLP_BEGIN after Z_LEAF_OLP"
+; 2. Add user-defined Zpage sections as below
+locate: Z_User_Calendar after Z_LEAF_OLP
+locate: lcdram after Z_User_Calendar
+;locate: RAM_RFC_START after lcdram
+;locate: RAM_RFC_Calc after RAM_RFC_START
+;locate: RAM_adc_page0 after RAM_RFC_Calc
+locate: keyscanram after lcdram
+locate: ADC_RAM after keyscanram
+locate: Z_OLP_BEGIN after ADC_RAM
+locate: END_OF_ZSEC at 100h reference
+
+locate: NSEC at 200h
+locate: NSEC_I after NSEC
+;locate: N_OLP_BEGIN after NSEC_I
+; To add user-defined Npage sections:
+; 1. Replace the previous line, "locate: N_OLP_BEGIN after NSEC_I"
+; 2. Add user-defined Npage sections as below
+locate: N_User_calendar after NSEC_I
+locate: LCD_NRAM after N_User_calendar
+;locate: ...
+locate: UART_PageNRAM after LCD_NRAM
+
+locate: N_OLP_BEGIN after UART_PageNRAM
+
+
+locate: END_OF_NSEC at C00h reference
+
+locate: GSINIT0 at C000h
+locate: GSINIT after GSINIT0
+locate: GSFINAL after GSINIT
+locate: XCONST after GSFINAL
+locate: INIT_TAB after XCONST
+locate: CODE after INIT_TAB
+locate: NSEC_INIT after CODE
+locate: ROM_calendar after NSEC_INIT
+locate: lcdasm after ROM_calendar
+locate: lcdtab after lcdasm
+;locate: Calculation_driv	after	lcdtab
+;locate: RFC_Driver	after	Calculation_driv
+;locate: RFC	after	RFC_Driver
+;locate: RFC_Table	after	RFC
+;locate: ADC_Deriver	after	RFC_Table
+locate: keyscan	after	lcdtab
+locate: UART_Code	after	keyscan
+locate: ADC_Code	after	UART_Code
+locate: GP_MATH after ADC_Code optional
+
+locate: IRQ_VEC_00 at FFC0 optional
+locate: IRQ_VEC_01 at FFC2 optional
+locate: IRQ_VEC_02 at FFC4 optional
+locate: IRQ_VEC_03 at FFC6 optional
+locate: IRQ_VEC_04 at FFC8 optional
+locate: IRQ_VEC_05 at FFCA optional
+locate: IRQ_VEC_06 at FFCC optional
+locate: IRQ_VEC_07 at FFCE optional
+locate: IRQ_VEC_08 at FFD0 optional
+locate: IRQ_VEC_09 at FFD2 optional
+locate: IRQ_VEC_10 at FFD4 optional
+locate: IRQ_VEC_11 at FFD6 optional
+locate: IRQ_VEC_12 at FFD8 optional
+locate: IRQ_VEC_13 at FFDA optional
+locate: IRQ_VEC_14 at FFDC optional
+locate: IRQ_VEC_15 at FFDE optional
+locate: IRQ_VEC_16 at FFE0 optional
+locate: IRQ_VEC_17 at FFE2 optional
+locate: INT_VEC at FFFAh 
+
+;locate: LCD_Probe_VEC at 3FFEh 
+  	
+locate: Z_Check_UartData after Z_OLP_BEGIN reference	;Z_5 -> Check_UartData() in ".\Release\UART" 1
+locate: Z_Play_SetTimeVoice_FromKey after Z_OLP_BEGIN reference	;Z_66 -> Play_SetTimeVoice_FromKey() in ".\Release\UART" 1
+locate: Z_OLP after Z_OLP_BEGIN
+
+locate: Z_powf after Z_OLP reference	;Z_225 -> powf() in "../build/float/powf" 0
+locate: Z_OLP_225 after Z_OLP
+
+locate: Z_sinf after Z_OLP_225 reference	;Z_236 -> sinf() in "../build/float/sinf" 0
+locate: Z_OLP_236 after Z_OLP_225
+
+locate: Z_sinhf after Z_OLP_236 reference	;Z_237 -> sinhf() in "../build/float/sinhf" 0
+locate: Z_OLP_237 after Z_OLP_236
+
+locate: Z_tanf after Z_OLP_237 reference	;Z_259 -> tanf() in "../build/float/tanf" 0
+locate: Z_OLP_259 after Z_OLP_237
+
+locate: Z_tanhf after Z_OLP_259 reference	;Z_260 -> tanhf() in "../build/float/tanhf" 0
+locate: Z_expf after Z_tanhf reference	;Z_185 -> expf() in "../build/float/expf" 0
+locate: Z_OLP_260 after Z_OLP_259
+
+locate: Z_mktime after Z_OLP_260 reference	;Z_219 -> mktime() in "../build/common/time" 0
+locate: Z__modsint after Z_mktime reference	;Z_144 -> _modsint() in "../build/int/_modsint" 0
+locate: Z_OLP_262 after Z_OLP_260
+
+locate: Z_vprintf after Z_OLP_262 reference	;Z_263 -> vprintf() in "../build/common/vprintf" 0
+locate: Z_OLP_263 after Z_OLP_262
+
+locate: Z_Sorting_Number_342282 after Z_OLP_263 reference	;Z_73 -> Sorting_Number_342282() in ".\Release\UART" 1
+locate: Z_OLP_73 after Z_OLP_263
+
+locate: Z_AnnounceDateTime after Z_OLP_73 reference	;Z_1 -> AnnounceDateTime() in ".\Release\UART" 1
+locate: Z_OLP_1 after Z_OLP_73
+
+locate: Z_F_Set_Date_342282 after Z_OLP_1 reference	;Z_50 -> F_Set_Date_342282() in ".\Release\UART" 1
+locate: Z_OLP_50 after Z_OLP_1
+
+locate: Z___schar2fs after Z_OLP_50 reference	;Z_118 -> __schar2fs() in "../build/float/_schar2fs" 0
+locate: Z_OLP_118 after Z_OLP_50
+
+locate: Z___uchar2fs after Z_OLP_118 reference	;Z_121 -> __uchar2fs() in "../build/float/_uchar2fs" 0
+locate: Z_OLP_121 after Z_OLP_118
+
+locate: Z___uint2fs after Z_OLP_121 reference	;Z_122 -> __uint2fs() in "../build/float/_uint2fs" 0
+locate: Z_OLP_122 after Z_OLP_121
+
+locate: Z__divsint after Z_OLP_122 reference	;Z_126 -> _divsint() in "../build/int/_divsint" 0
+locate: Z_OLP_126 after Z_OLP_122
+
+locate: Z__divslong after Z_OLP_126 reference	;Z_127 -> _divslong() in "../build/long/_divslong" 0
+locate: Z_OLP_127 after Z_OLP_126
+
+locate: Z__modslong after Z_OLP_127 reference	;Z_145 -> _modslong() in "../build/long/_modslong" 0
+locate: Z_OLP_145 after Z_OLP_127
+
+locate: Z_acosf after Z_OLP_145 reference	;Z_168 -> acosf() in "../build/float/acosf" 0
+locate: Z_OLP_168 after Z_OLP_145
+
+locate: Z_asinf after Z_OLP_168 reference	;Z_171 -> asinf() in "../build/float/asinf" 0
+locate: Z_asincosf after Z_asinf reference	;Z_170 -> asincosf() in "../build/float/asincosf" 0
+locate: Z_ldexpf after Z_asincosf reference	;Z_206 -> ldexpf() in "../build/float/ldexpf" 0
+locate: Z_sqrtf after Z_asincosf reference	;Z_239 -> sqrtf() in "../build/float/sqrtf" 0
+locate: Z_OLP_171 after Z_OLP_168
+
+locate: Z_atan2f after Z_OLP_171 reference	;Z_172 -> atan2f() in "../build/float/atan2f" 0
+locate: Z_atanf after Z_atan2f reference	;Z_173 -> atanf() in "../build/float/atanf" 0
+locate: Z___fssub after Z_atanf reference	;Z_116 -> __fssub() in "../build/float/_fssub" 0
+locate: Z_OLP_172 after Z_OLP_171
+
+locate: Z___sint2fs after Z_OLP_172 reference	;Z_119 -> __sint2fs() in "../build/float/_sint2fs" 0
+locate: Z_OLP_174 after Z_OLP_172
+
+locate: Z_cosf after Z_OLP_174 reference	;Z_179 -> cosf() in "../build/float/cosf" 0
+locate: Z_sincosf after Z_cosf reference	;Z_234 -> sincosf() in "../build/float/sincosf" 0
+locate: Z_OLP_179 after Z_OLP_174
+
+locate: Z_coshf after Z_OLP_179 reference	;Z_180 -> coshf() in "../build/float/coshf" 0
+locate: Z_sincoshf after Z_coshf reference	;Z_235 -> sincoshf() in "../build/float/sincoshf" 0
+locate: Z_OLP_180 after Z_OLP_179
+
+locate: Z_cotf after Z_OLP_180 reference	;Z_181 -> cotf() in "../build/float/cotf" 0
+locate: Z_tancotf after Z_cotf reference	;Z_258 -> tancotf() in "../build/float/tancotf" 0
+locate: Z_OLP_181 after Z_OLP_180
+
+locate: Z_ctime after Z_OLP_181 reference	;Z_182 -> ctime() in "../build/common/time" 0
+locate: Z_asctime after Z_ctime reference	;Z_169 -> asctime() in "../build/common/time" 0
+locate: Z__print_format after Z_asctime reference	;Z_158 -> _print_format() in "../build/common/printf_large" 0
+locate: Z_calculate_digit_21fa62 after Z__print_format reference	;Z_177 -> calculate_digit_21fa62() in "../build/common/printf_large" 0
+locate: Z_output_digit_21fa62 after Z__print_format reference	;Z_224 -> output_digit_21fa62() in "../build/common/printf_large" 0
+locate: Z_localtime after Z_ctime reference	;Z_207 -> localtime() in "../build/common/time" 0
+locate: Z_gmtime after Z_localtime reference	;Z_191 -> gmtime() in "../build/common/time" 0
+locate: Z_OLP_182 after Z_OLP_181
+
+locate: Z_getchar after Z_OLP_182 reference	;Z_189 -> getchar() in "../build/common/getchar" 0
+locate: Z_OLP_190 after Z_OLP_182
+
+locate: Z_log10f after Z_OLP_190 reference	;Z_208 -> log10f() in "../build/float/log10f" 0
+locate: Z_logf after Z_log10f reference	;Z_209 -> logf() in "../build/float/logf" 0
+locate: Z_OLP_208 after Z_OLP_190
+
+locate: N_main after N_OLP_BEGIN reference	;N_212 -> main() in ".\Release\MAIN" 1
+locate: N_Play_AlarmMusic_Stop after N_main reference	;N_65 -> Play_AlarmMusic_Stop() in ".\Release\UART" 1
+locate: N_Voice_SendModeCmd after N_Play_AlarmMusic_Stop reference	;N_96 -> Voice_SendModeCmd() in ".\Release\UART" 1
+locate: N_Check_UartData after N_main reference	;N_5 -> Check_UartData() in ".\Release\UART" 1
+locate: N_SetVolumeAndPlayAlarm1 after N_main reference	;N_70 -> SetVolumeAndPlayAlarm1() in ".\Release\UART" 1
+locate: N_Voice_SendVolumeCmd after N_SetVolumeAndPlayAlarm1 reference	;N_100 -> Voice_SendVolumeCmd() in ".\Release\UART" 1
+locate: N_F_ProcessLowPowerShutd_8b4f8d after N_main reference	;N_41 -> F_ProcessLowPowerShutd_8b4f8d() in ".\Release\MAIN" 1
+locate: N_PlaySingle after N_F_ProcessLowPowerShutd_8b4f8d reference	;N_64 -> PlaySingle() in ".\Release\UART" 1
+locate: N_F_Backlight_Process after N_main reference	;N_15 -> F_Backlight_Process() in ".\Release\TIMER" 1
+locate: N_Get_Backlight_Target_c08b9b after N_F_Backlight_Process reference	;N_59 -> Get_Backlight_Target_c08b9b() in ".\Release\TIMER" 1
+locate: N_PWM_SetBrightness after N_F_Backlight_Process reference	;N_62 -> PWM_SetBrightness() in ".\Release\TIMER" 1
+locate: N_OLP after N_OLP_BEGIN
+locate: N_memchr after N_OLP reference	;N_213 -> memchr() in "../build/common/_memchr" 0
+locate: N_OLP_213 after N_OLP
+
+locate: N_memcmp after N_OLP_213 reference	;N_214 -> memcmp() in "../build/common/_memcmp" 0
+locate: N_OLP_214 after N_OLP_213
+
+locate: N_memcpy after N_OLP_214 reference	;N_215 -> memcpy() in "../build/common/_memcpy" 0
+locate: N_OLP_215 after N_OLP_214
+
+locate: N_memicmp after N_OLP_215 reference	;N_216 -> memicmp() in "../build/common/_memicmp" 0
+locate: N_OLP_216 after N_OLP_215
+
+locate: N_memmove after N_OLP_216 reference	;N_217 -> memmove() in "../build/common/_memmove" 0
+locate: N_OLP_217 after N_OLP_216
+
+locate: N_memset after N_OLP_217 reference	;N_218 -> memset() in "../build/common/_memset" 0
+locate: N_OLP_218 after N_OLP_217
+
+locate: N_modff after N_OLP_218 reference	;N_220 -> modff() in "../build/float/modff" 0
+locate: N_OLP_220 after N_OLP_218
+
+locate: N_powf after N_OLP_220 reference	;N_225 -> powf() in "../build/float/powf" 0
+locate: N_OLP_225 after N_OLP_220
+
+locate: N__ltoa after N_OLP_225 reference	;N_142 -> _ltoa() in "../build/common/_ltoa" 0
+locate: N__ultoa after N__ltoa reference	;N_165 -> _ultoa() in "../build/common/_ultoa" 0
+locate: N_OLP_227 after N_OLP_225
+
+locate: N_puts after N_OLP_227 reference	;N_232 -> puts() in "../build/common/puts" 0
+locate: N_OLP_232 after N_OLP_227
+
+locate: N_sinf after N_OLP_232 reference	;N_236 -> sinf() in "../build/float/sinf" 0
+locate: N_OLP_236 after N_OLP_232
+
+locate: N_sinhf after N_OLP_236 reference	;N_237 -> sinhf() in "../build/float/sinhf" 0
+locate: N_OLP_237 after N_OLP_236
+
+locate: N_srand after N_OLP_237 reference	;N_240 -> srand() in "../build/common/rand" 0
+locate: N_OLP_240 after N_OLP_237
+
+locate: N_strcat after N_OLP_240 reference	;N_241 -> strcat() in "../build/common/_strcat" 0
+locate: N_OLP_241 after N_OLP_240
+
+locate: N_strchr after N_OLP_241 reference	;N_242 -> strchr() in "../build/common/_strchr" 0
+locate: N_OLP_242 after N_OLP_241
+
+locate: N_strcmp after N_OLP_242 reference	;N_243 -> strcmp() in "../build/common/_strcmp" 0
+locate: N_OLP_243 after N_OLP_242
+
+locate: N_strcpy after N_OLP_243 reference	;N_244 -> strcpy() in "../build/common/_strcpy" 0
+locate: N_OLP_244 after N_OLP_243
+
+locate: N_strcspn after N_OLP_244 reference	;N_245 -> strcspn() in "../build/common/_strcspn" 0
+locate: N_OLP_245 after N_OLP_244
+
+locate: N_stricmp after N_OLP_245 reference	;N_246 -> stricmp() in "../build/common/_stricmp" 0
+locate: N_OLP_246 after N_OLP_245
+
+locate: N_strncat after N_OLP_246 reference	;N_248 -> strncat() in "../build/common/_strncat" 0
+locate: N_OLP_248 after N_OLP_246
+
+locate: N_strncmp after N_OLP_248 reference	;N_249 -> strncmp() in "../build/common/_strncmp" 0
+locate: N_OLP_249 after N_OLP_248
+
+locate: N_strnicmp after N_OLP_249 reference	;N_251 -> strnicmp() in "../build/common/_strnicmp" 0
+locate: N_OLP_251 after N_OLP_249
+
+locate: N_strrchr after N_OLP_251 reference	;N_253 -> strrchr() in "../build/common/_strrchr" 0
+locate: N_OLP_253 after N_OLP_251
+
+locate: N_strstr after N_OLP_253 reference	;N_255 -> strstr() in "../build/common/_strstr" 0
+locate: N_OLP_255 after N_OLP_253
+
+locate: N_strtok after N_OLP_255 reference	;N_256 -> strtok() in "../build/common/_strtok" 0
+locate: N_strspn after N_strtok reference	;N_254 -> strspn() in "../build/common/_strspn" 0
+locate: N_strpbrk after N_strtok reference	;N_252 -> strpbrk() in "../build/common/_strpbrk" 0
+locate: N_OLP_256 after N_OLP_255
+
+locate: N_strxfrm after N_OLP_256 reference	;N_257 -> strxfrm() in "../build/common/strxfrm" 0
+locate: N_strncpy after N_strxfrm reference	;N_250 -> strncpy() in "../build/common/_strncpy" 0
+locate: N_OLP_257 after N_OLP_256
+
+locate: N_tanf after N_OLP_257 reference	;N_259 -> tanf() in "../build/float/tanf" 0
+locate: N_OLP_259 after N_OLP_257
+
+locate: N_tanhf after N_OLP_259 reference	;N_260 -> tanhf() in "../build/float/tanhf" 0
+locate: N_expf after N_tanhf reference	;N_185 -> expf() in "../build/float/expf" 0
+locate: N___fs2slong after N_expf reference	;N_105 -> __fs2slong() in "../build/float/_fs2slong" 0
+locate: N_OLP_260 after N_OLP_259
+
+locate: N_divOut_4ce2b0 after N_OLP_260 reference	;N_183 -> divOut_4ce2b0() in "../build/common/printf" 0
+locate: N_out_4ce2b0 after N_OLP_260 reference	;N_222 -> out_4ce2b0() in "../build/common/printf" 0
+locate: N_outDgt_4ce2b0 after N_OLP_260 reference	;N_221 -> outDgt_4ce2b0() in "../build/common/printf" 0
+locate: N_OLP_261 after N_OLP_260
+
+locate: N_time after N_OLP_261 reference	;N_262 -> time() in "../build/common/time" 0
+locate: N_mktime after N_time reference	;N_219 -> mktime() in "../build/common/time" 0
+locate: N__mullong after N_mktime reference	;N_152 -> _mullong() in "../build/long/_mullong" 0
+locate: N__modsint after N_mktime reference	;N_144 -> _modsint() in "../build/int/_modsint" 0
+locate: N__mulint after N_mktime reference	;N_151 -> _mulint() in "../build/int/_mulint" 0
+locate: N_RtcRead after N_time reference	;N_68 -> RtcRead() in "../build/common/time" 0
+locate: N_OLP_262 after N_OLP_261
+
+locate: N_vprintf after N_OLP_262 reference	;N_263 -> vprintf() in "../build/common/vprintf" 0
+locate: N_OLP_263 after N_OLP_262
+
+locate: N_vsprintf after N_OLP_263 reference	;N_264 -> vsprintf() in "../build/common/sprintf" 0
+locate: N_OLP_264 after N_OLP_263
+
+locate: N__moduint after N_OLP_264 reference	;N_148 -> _moduint() in "../build/int/_moduint" 1
+locate: N_OLP_148 after N_OLP_264
+
+locate: N_PlaySequence after N_OLP_148 reference	;N_63 -> PlaySequence() in ".\Release\UART" 1
+locate: N_OLP_63 after N_OLP_148
+
+locate: N_Voice_SendPlayCmd after N_OLP_63 reference	;N_97 -> Voice_SendPlayCmd() in ".\Release\UART" 1
+locate: N_OLP_97 after N_OLP_63
+
+locate: N_Voice_SendContinueCmd after N_OLP_97 reference	;N_95 -> Voice_SendContinueCmd() in ".\Release\UART" 1
+locate: N_OLP_95 after N_OLP_97
+
+locate: N_Sorting_Hour_342282 after N_OLP_95 reference	;N_72 -> Sorting_Hour_342282() in ".\Release\UART" 1
+locate: N_OLP_72 after N_OLP_95
+
+locate: N_Sorting_Number_342282 after N_OLP_72 reference	;N_73 -> Sorting_Number_342282() in ".\Release\UART" 1
+locate: N__divuint after N_Sorting_Number_342282 reference	;N_130 -> _divuint() in "../build/int/_divuint" 1
+locate: N_OLP_73 after N_OLP_72
+
+locate: N_Check_Time_ZD_342282 after N_OLP_73 reference	;N_4 -> Check_Time_ZD_342282() in ".\Release\UART" 1
+locate: N_OLP_4 after N_OLP_73
+
+locate: N_Send_Voice_Cmd_342282 after N_OLP_4 reference	;N_69 -> Send_Voice_Cmd_342282() in ".\Release\UART" 1
+locate: N_OLP_69 after N_OLP_4
+
+locate: N_UART_SendByte after N_OLP_69 reference	;N_74 -> UART_SendByte() in ".\Release\UART" 1
+locate: N_OLP_74 after N_OLP_69
+
+locate: N_AnnounceDateTime after N_OLP_74 reference	;N_1 -> AnnounceDateTime() in ".\Release\UART" 1
+locate: N_OLP_1 after N_OLP_74
+
+locate: N_F_Alarm_Loop_342282 after N_OLP_1 reference	;N_13 -> F_Alarm_Loop_342282() in ".\Release\UART" 1
+locate: N_OLP_13 after N_OLP_1
+
+locate: N_F_Alarm_On_Off_342282 after N_OLP_13 reference	;N_14 -> F_Alarm_On_Off_342282() in ".\Release\UART" 1
+locate: N_OLP_14 after N_OLP_13
+
+locate: N_F_CountDown_Start_342282 after N_OLP_14 reference	;N_23 -> F_CountDown_Start_342282() in ".\Release\UART" 1
+locate: N_OLP_23 after N_OLP_14
+
+locate: N_F_Set_Alarm_342282 after N_OLP_23 reference	;N_49 -> F_Set_Alarm_342282() in ".\Release\UART" 1
+locate: N_OLP_49 after N_OLP_23
+
+locate: N_F_Set_Date_342282 after N_OLP_49 reference	;N_50 -> F_Set_Date_342282() in ".\Release\UART" 1
+locate: N_OLP_50 after N_OLP_49
+
+locate: N_F_Set_Time_342282 after N_OLP_50 reference	;N_51 -> F_Set_Time_342282() in ".\Release\UART" 1
+locate: N_OLP_51 after N_OLP_50
+
+locate: N___bgetc after N_OLP_51 reference	;N_102 -> __bgetc() in "../build/common/_bgetc" 0
+locate: N_OLP_102 after N_OLP_51
+
+locate: N___fs2schar after N_OLP_102 reference	;N_103 -> __fs2schar() in "../build/float/_fs2schar" 0
+locate: N_OLP_103 after N_OLP_102
+
+locate: N___fs2uchar after N_OLP_103 reference	;N_106 -> __fs2uchar() in "../build/float/_fs2uchar" 0
+locate: N_OLP_106 after N_OLP_103
+
+locate: N___fs2uint after N_OLP_106 reference	;N_107 -> __fs2uint() in "../build/float/_fs2uint" 0
+locate: N___fs2ulong after N___fs2uint reference	;N_108 -> __fs2ulong() in "../build/float/_fs2ulong" 0
+locate: N_OLP_107 after N_OLP_106
+
+locate: N___fsneq after N_OLP_107 reference	;N_115 -> __fsneq() in "../build/float/_fsneq" 0
+locate: N_OLP_115 after N_OLP_107
+
+locate: N___schar2fs after N_OLP_115 reference	;N_118 -> __schar2fs() in "../build/float/_schar2fs" 0
+locate: N___slong2fs after N___schar2fs reference	;N_120 -> __slong2fs() in "../build/float/_slong2fs" 0
+locate: N_OLP_118 after N_OLP_115
+
+locate: N___uchar2fs after N_OLP_118 reference	;N_121 -> __uchar2fs() in "../build/float/_uchar2fs" 0
+locate: N_OLP_121 after N_OLP_118
+
+locate: N___uint2fs after N_OLP_121 reference	;N_122 -> __uint2fs() in "../build/float/_uint2fs" 0
+locate: N___ulong2fs after N___uint2fs reference	;N_123 -> __ulong2fs() in "../build/float/_ulong2fs" 0
+locate: N_OLP_122 after N_OLP_121
+
+locate: N__assert after N_OLP_122 reference	;N_124 -> _assert() in "../build/common/assert" 0
+locate: N_OLP_124 after N_OLP_122
+
+locate: N__divschar after N_OLP_124 reference	;N_125 -> _divschar() in "../build/int/_divschar" 0
+locate: N_OLP_125 after N_OLP_124
+
+locate: N__divsint after N_OLP_125 reference	;N_126 -> _divsint() in "../build/int/_divsint" 0
+locate: N_OLP_126 after N_OLP_125
+
+locate: N__divslong after N_OLP_126 reference	;N_127 -> _divslong() in "../build/long/_divslong" 0
+locate: N_OLP_127 after N_OLP_126
+
+locate: N__divsuchar after N_OLP_127 reference	;N_128 -> _divsuchar() in "../build/int/_divsuchar" 0
+locate: N_OLP_128 after N_OLP_127
+
+locate: N__divuchar after N_OLP_128 reference	;N_129 -> _divuchar() in "../build/int/_divuchar" 0
+locate: N_OLP_129 after N_OLP_128
+
+locate: N__divuiucbase after N_OLP_129 reference	;N_131 -> _divuiucbase() in "../build/int/_divuiucbase" 0
+locate: N_OLP_131 after N_OLP_129
+
+locate: N__divuschar after N_OLP_131 reference	;N_133 -> _divuschar() in "../build/int/_divuschar" 0
+locate: N_OLP_133 after N_OLP_131
+
+locate: N__itoa after N_OLP_133 reference	;N_141 -> _itoa() in "../build/common/_itoa" 0
+locate: N__uitoa after N__itoa reference	;N_164 -> _uitoa() in "../build/common/_itoa" 0
+locate: N_OLP_141 after N_OLP_133
+
+locate: N__modschar after N_OLP_141 reference	;N_143 -> _modschar() in "../build/int/_modschar" 0
+locate: N_OLP_143 after N_OLP_141
+
+locate: N__modslong after N_OLP_143 reference	;N_145 -> _modslong() in "../build/long/_modslong" 0
+locate: N_OLP_145 after N_OLP_143
+
+locate: N__modsuchar after N_OLP_145 reference	;N_146 -> _modsuchar() in "../build/int/_modsuchar" 0
+locate: N_OLP_146 after N_OLP_145
+
+locate: N__moduchar after N_OLP_146 reference	;N_147 -> _moduchar() in "../build/int/_moduchar" 0
+locate: N_OLP_147 after N_OLP_146
+
+locate: N__moduschar after N_OLP_147 reference	;N_150 -> _moduschar() in "../build/int/_moduschar" 0
+locate: N_OLP_150 after N_OLP_147
+
+locate: N__mulschar after N_OLP_150 reference	;N_153 -> _mulschar() in "../build/int/_mulschar" 0
+locate: N_OLP_153 after N_OLP_150
+
+locate: N__mulsuchar after N_OLP_153 reference	;N_154 -> _mulsuchar() in "../build/int/_mulsuchar" 0
+locate: N_OLP_154 after N_OLP_153
+
+locate: N__muluchar after N_OLP_154 reference	;N_155 -> _muluchar() in "../build/int/_muluchar" 0
+locate: N_OLP_155 after N_OLP_154
+
+locate: N__muluschar after N_OLP_155 reference	;N_156 -> _muluschar() in "../build/int/_muluschar" 0
+locate: N_OLP_156 after N_OLP_155
+
+locate: N__sdivchar after N_OLP_156 reference	;N_159 -> _sdivchar() in "../build/int/_sdivchar" 0
+locate: N_OLP_159 after N_OLP_156
+
+locate: N__sdivchar_1 after N_OLP_159 reference	;N_160 -> _sdivchar_1() in "../build/int/_sdivchar" 0
+locate: N_OLP_160 after N_OLP_159
+
+locate: N__smodchar after N_OLP_160 reference	;N_161 -> _smodchar() in "../build/int/_smodchar" 0
+locate: N_OLP_161 after N_OLP_160
+
+locate: N__smodchar_1 after N_OLP_161 reference	;N_162 -> _smodchar_1() in "../build/int/_smodchar" 0
+locate: N_OLP_162 after N_OLP_161
+
+locate: N__smulchar after N_OLP_162 reference	;N_163 -> _smulchar() in "../build/int/_smulchar" 0
+locate: N_OLP_163 after N_OLP_162
+
+locate: N_abs after N_OLP_163 reference	;N_167 -> abs() in "../build/common/abs" 0
+locate: N_OLP_167 after N_OLP_163
+
+locate: N_acosf after N_OLP_167 reference	;N_168 -> acosf() in "../build/float/acosf" 0
+locate: N_OLP_168 after N_OLP_167
+
+locate: N_asinf after N_OLP_168 reference	;N_171 -> asinf() in "../build/float/asinf" 0
+locate: N_asincosf after N_asinf reference	;N_170 -> asincosf() in "../build/float/asincosf" 0
+locate: N_sqrtf after N_asincosf reference	;N_239 -> sqrtf() in "../build/float/sqrtf" 0
+locate: N_frexpf after N_sqrtf reference	;N_188 -> frexpf() in "../build/float/frexpf" 0
+locate: N_ldexpf after N_asincosf reference	;N_206 -> ldexpf() in "../build/float/ldexpf" 0
+locate: N___fseq after N_asinf reference	;N_111 -> __fseq() in "../build/float/_fseq" 0
+locate: N_OLP_171 after N_OLP_168
+
+locate: N_atan2f after N_OLP_171 reference	;N_172 -> atan2f() in "../build/float/atan2f" 0
+locate: N_atanf after N_atan2f reference	;N_173 -> atanf() in "../build/float/atanf" 0
+locate: N___fssub after N_atanf reference	;N_116 -> __fssub() in "../build/float/_fssub" 0
+locate: N___fsgt after N_atanf reference	;N_112 -> __fsgt() in "../build/float/_fsgt" 0
+locate: N___fsdiv after N_atanf reference	;N_110 -> __fsdiv() in "../build/float/_fsdiv" 0
+locate: N_OLP_172 after N_OLP_171
+
+locate: N_atof after N_OLP_172 reference	;N_174 -> atof() in "../build/common/_atof" 0
+locate: N___fsadd after N_atof reference	;N_109 -> __fsadd() in "../build/float/_fsadd" 0
+locate: N__fsunpack2args after N___fsadd reference	;N_140 -> _fsunpack2args() in "../build/float/_fsunpack2args" 0
+locate: N___sint2fs after N_atof reference	;N_119 -> __sint2fs() in "../build/float/_sint2fs" 0
+locate: N_atoi after N_atof reference	;N_175 -> atoi() in "../build/common/_atoi" 0
+locate: N_OLP_174 after N_OLP_172
+
+locate: N_atol after N_OLP_174 reference	;N_176 -> atol() in "../build/common/_atol" 0
+locate: N_OLP_176 after N_OLP_174
+
+locate: N_ceilf after N_OLP_176 reference	;N_178 -> ceilf() in "../build/float/ceilf" 0
+locate: N_OLP_178 after N_OLP_176
+
+locate: N_cosf after N_OLP_178 reference	;N_179 -> cosf() in "../build/float/cosf" 0
+locate: N_sincosf after N_cosf reference	;N_234 -> sincosf() in "../build/float/sincosf" 0
+locate: N_OLP_179 after N_OLP_178
+
+locate: N_coshf after N_OLP_179 reference	;N_180 -> coshf() in "../build/float/coshf" 0
+locate: N_sincoshf after N_coshf reference	;N_235 -> sincoshf() in "../build/float/sincoshf" 0
+locate: N_OLP_180 after N_OLP_179
+
+locate: N_cotf after N_OLP_180 reference	;N_181 -> cotf() in "../build/float/cotf" 0
+locate: N_tancotf after N_cotf reference	;N_258 -> tancotf() in "../build/float/tancotf" 0
+locate: N___fs2sint after N_tancotf reference	;N_104 -> __fs2sint() in "../build/float/_fs2sint" 0
+locate: N___fslt after N_cotf reference	;N_113 -> __fslt() in "../build/float/_fslt" 0
+locate: N_fabsf after N_cotf reference	;N_186 -> fabsf() in "../build/float/fabsf" 0
+locate: N_OLP_181 after N_OLP_180
+
+locate: N_ctime after N_OLP_181 reference	;N_182 -> ctime() in "../build/common/time" 0
+locate: N_asctime after N_ctime reference	;N_169 -> asctime() in "../build/common/time" 0
+locate: N__print_format after N_asctime reference	;N_158 -> _print_format() in "../build/common/printf_large" 0
+locate: N_strlen after N__print_format reference	;N_247 -> strlen() in "../build/common/_strlen" 0
+locate: N_output_2digits_21fa62 after N__print_format reference	;N_223 -> output_2digits_21fa62() in "../build/common/printf_large" 0
+locate: N_output_digit_21fa62 after N_output_2digits_21fa62 reference	;N_224 -> output_digit_21fa62() in "../build/common/printf_large" 0
+locate: N__output_char_21fa62 after N__print_format reference	;N_157 -> _output_char_21fa62() in "../build/common/printf_large" 0
+locate: N_calculate_digit_21fa62 after N__print_format reference	;N_177 -> calculate_digit_21fa62() in "../build/common/printf_large" 0
+locate: N_localtime after N_ctime reference	;N_207 -> localtime() in "../build/common/time" 0
+locate: N_gmtime after N_localtime reference	;N_191 -> gmtime() in "../build/common/time" 0
+locate: N__modulong after N_gmtime reference	;N_149 -> _modulong() in "../build/long/_modulong" 0
+locate: N__divulong after N_gmtime reference	;N_132 -> _divulong() in "../build/long/_divulong" 0
+locate: N_CheckTime_5ed063 after N_asctime reference	;N_3 -> CheckTime_5ed063() in "../build/common/time" 0
+locate: N_OLP_182 after N_OLP_181
+
+locate: N_exit after N_OLP_182 reference	;N_184 -> exit() in "../build/common/_exit" 0
+locate: N_OLP_184 after N_OLP_182
+
+locate: N_floorf after N_OLP_184 reference	;N_187 -> floorf() in "../build/float/floorf" 0
+locate: N_OLP_187 after N_OLP_184
+
+locate: N_gets after N_OLP_187 reference	;N_190 -> gets() in "../build/common/gets" 0
+locate: N_getchar after N_gets reference	;N_189 -> getchar() in "../build/common/getchar" 0
+locate: N_put_message_cc6538 after N_getchar reference	;N_230 -> put_message_cc6538() in "../build/common/getchar" 0
+locate: N_putchar after N_put_message_cc6538 reference	;N_231 -> putchar() in "../build/common/putchar" 0
+locate: N___low_level_put_e26ccc after N_putchar reference	;N_117 -> __low_level_put_e26ccc() in "../build/common/putchar" 0
+locate: N_OLP_190 after N_OLP_187
+
+locate: N_isalnum after N_OLP_190 reference	;N_192 -> isalnum() in "../build/common/_isalnum" 0
+locate: N_OLP_192 after N_OLP_190
+
+locate: N_isalpha after N_OLP_192 reference	;N_193 -> isalpha() in "../build/common/_isalpha" 0
+locate: N_OLP_193 after N_OLP_192
+
+locate: N_iscntrl after N_OLP_193 reference	;N_194 -> iscntrl() in "../build/common/_iscntrl" 0
+locate: N_OLP_194 after N_OLP_193
+
+locate: N_isdigit after N_OLP_194 reference	;N_195 -> isdigit() in "../build/common/_isdigit" 0
+locate: N_OLP_195 after N_OLP_194
+
+locate: N_isgraph after N_OLP_195 reference	;N_196 -> isgraph() in "../build/common/_isgraph" 0
+locate: N_OLP_196 after N_OLP_195
+
+locate: N_isinf after N_OLP_196 reference	;N_197 -> isinf() in "../build/float/isinf" 0
+locate: N_OLP_197 after N_OLP_196
+
+locate: N_islower after N_OLP_197 reference	;N_198 -> islower() in "../build/common/_islower" 0
+locate: N_OLP_198 after N_OLP_197
+
+locate: N_isnan after N_OLP_198 reference	;N_199 -> isnan() in "../build/float/isnan" 0
+locate: N__fsunpack1arg after N_isnan reference	;N_139 -> _fsunpack1arg() in "../build/float/_fsunpack1arg" 0
+locate: N_OLP_199 after N_OLP_198
+
+locate: N_isprint after N_OLP_199 reference	;N_200 -> isprint() in "../build/common/_isprint" 0
+locate: N_OLP_200 after N_OLP_199
+
+locate: N_ispunct after N_OLP_200 reference	;N_201 -> ispunct() in "../build/common/_ispunct" 0
+locate: N_OLP_201 after N_OLP_200
+
+locate: N_isspace after N_OLP_201 reference	;N_202 -> isspace() in "../build/common/_isspace" 0
+locate: N_OLP_202 after N_OLP_201
+
+locate: N_isupper after N_OLP_202 reference	;N_203 -> isupper() in "../build/common/_isupper" 0
+locate: N_OLP_203 after N_OLP_202
+
+locate: N_isxdigit after N_OLP_203 reference	;N_204 -> isxdigit() in "../build/common/_isxdigit" 0
+locate: N_OLP_204 after N_OLP_203
+
+locate: N_labs after N_OLP_204 reference	;N_205 -> labs() in "../build/common/labs" 0
+locate: N_OLP_205 after N_OLP_204
+
+locate: N_log10f after N_OLP_205 reference	;N_208 -> log10f() in "../build/float/log10f" 0
+locate: N_logf after N_log10f reference	;N_209 -> logf() in "../build/float/logf" 0
+locate: N___fsmul after N_log10f reference	;N_114 -> __fsmul() in "../build/float/_fsmul" 0
+locate: N_OLP_208 after N_OLP_205
+

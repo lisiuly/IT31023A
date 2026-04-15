@@ -1,0 +1,84 @@
+
+// =======================================================================================
+// Function name	: LCD_Display
+// Purpose			: LCD dispaly function
+// Parameter		: lcd_data reflash LCD data
+// Return			: None
+// Destroy			: A 
+// C_ARGN			: 0
+// C_ARGZ			: 0
+// ======================================================================================
+void LCD_Display(unsigned char lcd_data) ;//
+// =======================================================================================
+// Function name	: PortE_setting
+// Purpose			: Initialized PortE
+// Parameter		: None
+// Return			: None
+// Destroy			: A 
+// C_ARGN			: 0
+// C_ARGZ			: 0
+// ======================================================================================
+extern void PortE_setting(unsigned char r_attrib, unsigned char r_Dir, unsigned char r_data);
+// =======================================================================================
+// Function name	: PortD_setting
+// Purpose			: Initialized PortD
+// Parameter		: None
+// Return			: None
+// Destroy			: A 
+// C_ARGN			: 0
+// C_ARGZ			: 0
+// ======================================================================================
+extern void PortD_setting(unsigned char r_attrib, unsigned char r_Dir, unsigned char r_data);
+// =======================================================================================
+// Function name	: PortA_setting
+// Purpose			: Initialized PortA
+// Parameter		: None
+// Return			: None
+// Destroy			: A 
+// C_ARGN			: 0
+// C_ARGZ			: 0
+// ======================================================================================
+extern void PortA_setting(unsigned char r_attrib, unsigned char r_Dir, unsigned char r_data);
+// =======================================================================================
+// Function name	: PortC_setting
+// Purpose			: Initialized PortC
+// Parameter		: None
+// Return			: None
+// Destroy			: A 
+// C_ARGN			: 0
+// C_ARGZ			: 0
+// ======================================================================================
+extern void PortC_setting(unsigned char r_attrib, unsigned char r_Dir, unsigned char r_data);
+
+//;============================================================================
+//;Function Name:	F_SYS_ClearDPRAM
+//;Description:	Clear DPRAM form start address to end address
+//;Destroy:		A,X,Y
+//;Stack Depth:   2
+//;Notice: SRAM range is C_SramAddrStart ~ C_SramAddrEnd
+//;============================================================================
+extern void F_SYS_ClearDPRAM(void);
+//;============================================================================
+//;Function Name:	F_SYS_ClearPage0
+//;Description:	Clear DPRAM form start address to end address
+//;Destroy:		A,X,Y
+//;Stack Depth:   2
+//;Notice: SRAM range is C_SramAddrStart ~ C_SramAddrEnd
+//;============================================================================
+extern void F_SYS_ClearPage0(void);
+//;============================================================================
+//;Function Name:	F_SYS_ClearNPage
+//;Description:	Clear DPRAM form start address to end address
+//;Destroy:		A,X,Y
+//;Stack Depth:   2
+//;Notice: SRAM range is C_SramAddrStart ~ C_SramAddrEnd
+//;============================================================================
+extern void F_SYS_ClearNPage(void);
+//;============================================================================
+//;Function Name:	F_SYS_ClearNPage
+//;Description:	Clear DPRAM form start address to end address
+//;Destroy:		A,X,Y
+//;Stack Depth:   2
+//;Notice: SRAM range is C_SramAddrStart ~ C_SramAddrEnd
+//;============================================================================
+extern void F_SYS_PowerOnInitinal(void);

@@ -1,0 +1,77 @@
+overlapgroup Z_OLP_BEGIN: DO_NOT_DELETE_Z_OLP_BEGIN
+overlapgroup N_OLP_BEGIN: DO_NOT_DELETE_N_OLP_BEGIN
+overlapgroup Z_LEAF_OLP: OSEC0, OSEC1, OSEC2, OSEC3, OSEC4, OSEC5, OSEC6, OSEC7, OSEC8, OSEC9, OSEC10, OSEC11, OSEC12, OSEC13, OSEC14, OSEC15, OSEC16, OSEC17, OSEC18, OSEC19, OSEC20, OSEC21, OSEC22, OSEC23, OSEC24, OSEC25, OSEC26, OSEC27, OSEC28, OSEC29, OSEC30, OSEC31, OSEC32, OSEC33, OSEC34, OSEC35, OSEC36, OSEC37, OSEC38, OSEC39, OSEC40
+
+locate: PAGE0 at 00h reference
+locate: Z_LEAF_OLP after PAGE0
+;locate: Z_OLP_BEGIN after Z_LEAF_OLP
+; To add user-defined Zpage sections:
+; 1. Replace the previous line, "locate: Z_OLP_BEGIN after Z_LEAF_OLP"
+; 2. Add user-defined Zpage sections as below
+locate: Z_User_Calendar after Z_LEAF_OLP
+locate: lcdram after Z_User_Calendar
+;locate: RAM_RFC_START after lcdram
+;locate: RAM_RFC_Calc after RAM_RFC_START
+;locate: RAM_adc_page0 after RAM_RFC_Calc
+locate: keyscanram after lcdram
+locate: ADC_RAM after keyscanram
+locate: Z_OLP_BEGIN after ADC_RAM
+locate: END_OF_ZSEC at 100h reference
+
+locate: NSEC at 200h
+locate: NSEC_I after NSEC
+;locate: N_OLP_BEGIN after NSEC_I
+; To add user-defined Npage sections:
+; 1. Replace the previous line, "locate: N_OLP_BEGIN after NSEC_I"
+; 2. Add user-defined Npage sections as below
+locate: N_User_calendar after NSEC_I
+locate: LCD_NRAM after N_User_calendar
+;locate: ...
+locate: UART_PageNRAM after LCD_NRAM
+
+locate: N_OLP_BEGIN after UART_PageNRAM
+
+
+locate: END_OF_NSEC at C00h reference
+
+locate: GSINIT0 at C000h
+locate: GSINIT after GSINIT0
+locate: GSFINAL after GSINIT
+locate: XCONST after GSFINAL
+locate: INIT_TAB after XCONST
+locate: CODE after INIT_TAB
+locate: NSEC_INIT after CODE
+locate: ROM_calendar after NSEC_INIT
+locate: lcdasm after ROM_calendar
+locate: lcdtab after lcdasm
+;locate: Calculation_driv	after	lcdtab
+;locate: RFC_Driver	after	Calculation_driv
+;locate: RFC	after	RFC_Driver
+;locate: RFC_Table	after	RFC
+;locate: ADC_Deriver	after	RFC_Table
+locate: keyscan	after	lcdtab
+locate: UART_Code	after	keyscan
+locate: ADC_Code	after	UART_Code
+locate: GP_MATH after ADC_Code optional
+
+locate: IRQ_VEC_00 at FFC0 optional
+locate: IRQ_VEC_01 at FFC2 optional
+locate: IRQ_VEC_02 at FFC4 optional
+locate: IRQ_VEC_03 at FFC6 optional
+locate: IRQ_VEC_04 at FFC8 optional
+locate: IRQ_VEC_05 at FFCA optional
+locate: IRQ_VEC_06 at FFCC optional
+locate: IRQ_VEC_07 at FFCE optional
+locate: IRQ_VEC_08 at FFD0 optional
+locate: IRQ_VEC_09 at FFD2 optional
+locate: IRQ_VEC_10 at FFD4 optional
+locate: IRQ_VEC_11 at FFD6 optional
+locate: IRQ_VEC_12 at FFD8 optional
+locate: IRQ_VEC_13 at FFDA optional
+locate: IRQ_VEC_14 at FFDC optional
+locate: IRQ_VEC_15 at FFDE optional
+locate: IRQ_VEC_16 at FFE0 optional
+locate: IRQ_VEC_17 at FFE2 optional
+locate: INT_VEC at FFFAh 
+
+;locate: LCD_Probe_VEC at 3FFEh 

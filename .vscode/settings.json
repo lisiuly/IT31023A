@@ -1,0 +1,12 @@
+{
+    "files.encoding": "gb2312",
+    "files.associations": {
+        "*.asm": "asm6502",
+        "*.inc": "asm6502",
+        "gpl815p.h": "c",
+        "variable.h": "c",
+        "system.h": "c",
+        "calendar.h": "c"
+    },
+    "C_Cpp.dimInactiveRegions": false
+}

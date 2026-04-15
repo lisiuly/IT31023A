@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-2"?>
+<UserOptions>
+	<GPlusSetting>
+	</GPlusSetting>
+	<Breakpoints>
+		<Breakpoint>
+		</Breakpoint>
+	</Breakpoints>
+	<UI_CConfigPane>
+		SelPage="0"
+	</UI_CConfigPane>
+	<OpenState>
+		<OpenFiles>
+			Path=".\\main.c"
+			Path=".\\GPL815PXx_Calendar_6502C.lik"
+			State="0,0,0"
+		</OpenFiles>
+		<OpenFolders>
+			<{573B84F6-3F64-4218-A5DC-6D7D42DAB8F0}>
+				Expanded="TRUE"
+				Name="Source Files"
+				Name="Include Files"
+				Name="Link Script File"
+			</{573B84F6-3F64-4218-A5DC-6D7D42DAB8F0}>
+		</OpenFolders>
+	</OpenState>
+</UserOptions>

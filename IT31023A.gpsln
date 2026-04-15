@@ -1,0 +1,36 @@
+# Generalplus IDE Solution File, Format Version 1.0.0
+# Warning: do not edit or delete this solution file!
+
+# ////////////////////////////////////////////////////
+# Begin Solution
+<Solution>
+	NAME : IT31023A
+	GUID : {4E8E7E3C-E6EF-435A-86E3-5ACD3075C51C}
+	STARTUP : {573B84F6-3F64-4218-A5DC-6D7D42DAB8F0}
+	ACTIVECONFIGURATION : Release
+	AUTOOPENPROJECTSETTING : TRUE
+</Solution>
+# End Solution
+
+# ////////////////////////////////////////////////////
+# Begin Project
+<Projects>
+	COUNT : 1
+	<Project1>
+		NAME : GPL815PXx_Calendar_6502C
+		GUID : {573B84F6-3F64-4218-A5DC-6D7D42DAB8F0}
+		PATH : .\GPL815PXx_Calendar_6502C.gpproj
+		Dependencies : 
+	</Project1>
+</Projects>
+
+# End Project
+# ////////////////////////////////////////////////////
+# ////////////////////////////////////////////////////
+# Begin BookMark
+<BookMarks>
+	COUNT : 0
+</BookMarks>
+
+# End BookMark
+# ////////////////////////////////////////////////////

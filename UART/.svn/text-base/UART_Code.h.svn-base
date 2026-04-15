@@ -1,0 +1,107 @@
+//==================================================================================
+// Name                  : I2C_Code.h
+// Applied Body          : GPL833F Series
+// Programmer            : 
+// Description           : 
+// History version       : v1.0.0
+// 1.0.0     2014/10/15  Frank Kung     Oringinal Version
+//==================================================================================
+
+// ======================================================================================
+// Function name : F_I2C_SetMasterInitial
+// Purpose       : I2C Master initial
+// Parameter     : None
+// Return        : None
+// ======================================================================================
+extern void F_I2C_MasterInitial(void);
+ 
+    
+// ======================================================================================
+// Function name : F_I2C_SlaverInitial
+// Purpose       : I2C Slaver initial
+// Parameter     : None
+// Return        : None
+// ======================================================================================
+extern void F_I2C_SlaverInitial(void);
+ 
+ 
+// ======================================================================================
+// Function name : F_I2C_ChkDone
+// Purpose       : I2C transmission complete?
+// Parameter     : None
+// Return        : None   
+// ======================================================================================    
+extern void F_I2C_ChkDone(void);	
+ 
+  	
+// ======================================================================================
+// Function name : F_I2C_StartWrite
+// Purpose       : I2C start write command
+// Parameter     : None
+// Return        : None  
+// ======================================================================================    
+extern void F_I2C_StartWrite(void);
+
+  	
+// ======================================================================================
+// Function name : F_I2C_StartRead
+// Purpose       : I2C start read command
+// Parameter     : None
+// Return        : None  
+// ======================================================================================    
+extern void F_I2C_StartRead(void);
+	
+ 
+// ======================================================================================
+// Function name : F_I2C_WriteData
+// Purpose       : I2C write Data
+// Parameter     : unsigned int R_I2CEEPROM_Addr
+//                 unsigned int R_I2C_Data
+
+// Return        : None  
+// ======================================================================================    
+extern void F_I2C_WriteData(void);
+
+  	
+// ======================================================================================
+// Function name : F_I2C_ReadData
+// Purpose       : I2C read Data
+// Parameter     : None
+// Return        : None
+// ======================================================================================    
+extern void F_I2C_ReadData(void);
+	
+ 
+// ======================================================================================
+// Function name : F_I2C_ReadNack
+// Purpose       : I2C read nack
+// Parameter     : None
+// Return        : None   
+// ======================================================================================      	
+extern void F_I2C_ReadNack(void);
+  	
+  	
+// ======================================================================================
+// Function name : F_I2C_Stop
+// Purpose       : I2C stop
+// Parameter     : None
+// Return        : None  
+// ======================================================================================	
+extern void F_I2C_Stop(void);	
+
+
+// ======================================================================================
+// Function name : F_I2C_Close
+// Purpose       : I2C disable
+// Parameter     : None
+// Return        : None  
+// ======================================================================================      	
+extern void F_I2C_Close(void);	
+
+
+//==========================================
+// External declare area
+//==========================================
+extern void R_I2C_CtrlSet;
+
+  

@@ -1,0 +1,8 @@
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibCommon.lib
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibFloat.lib
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibInt.lib
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibLong.lib
+.\Release\MAIN.CG
+.\Release\INT_VEC.CG
+.\Release\LOWINIT.CG
+.\Release\SYSTEM.CG

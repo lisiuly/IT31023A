@@ -1,0 +1,17 @@
+.\Release\MAIN.I
+.\Release\INT_VEC.I
+.\Release\LOWINIT.I
+.\Release\SYSTEM.I
+.\Release\TIMER.I
+.\Release\UART.I
+.\Release\CSTARTUP.OBJ
+.\Release\CALENDAR.OBJ
+.\Release\LCD.OBJ
+.\Release\KEYSCAN.OBJ
+.\Release\UART_CODE.OBJ
+.\Release\D_I2C.OBJ
+.\Release\GXHTV4.OBJ
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibCommon.lib
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibFloat.lib
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibInt.lib
+C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Lib\Release\olp\CLibLong.lib

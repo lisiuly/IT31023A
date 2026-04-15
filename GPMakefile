@@ -1,0 +1,317 @@
+#####################################################################
+#
+#	Created by 6502 C Project		2026-4-15 15:07:13
+#
+#####################################################################
+TOOLSDIR		= C:\PROGRA~2\GENERA~1\GPIDE_~1.0\Tools\Compiler\6502
+PROJECTDIR		= E:\project\IT31023A_正倒计时语音播报钟\DEMO
+BODYPATH		= C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\gplus\project\Body\6502\GPL815
+OUTPUTDIR		= .\Release
+IMDIR			= .\Release
+
+BODYSERIES		= GPL815
+ASM_INC_PATH	= -I "E:\project\IT31023A_正倒计时语音播报钟\DEMO" 
+CPP_INC_PATH	=  -I "C:\Program Files (x86)\Generalplus\GPIDE_6502 1.3.0\Tools\CLib\6502\Include"
+
+OLPOPTIONS		= 
+COPTIONS		= --model-large --funsigned-char --debug --gpstabs --Werr
+CCONF			= -C "$(BODYPATH)\\.\C\GPL815_C.conf"
+CHIPINFO		= "$(BODYPATH)\\.\ChipInformation\GPL815P02Ax_ChipInfo.conf"
+ASMOPTION		= -p $(BODYSERIES)_SERIES -p INS_LIB_NOT_EXIST
+ASMFLAG			= -b $(CHIPINFO) $(ASM_INC_PATH) $(ASMOPTION) -Tb -l -d -s -q -xff -SC
+ASMIRPCHECKFLG	= -Mpseudo
+CGENPARHOPTION	= $(call HANDLE_CGENASMPATH,-b,-b $(CHIPINFO)),$(call HANDLE_CGENASMPATH,-I,$(ASM_INC_PATH))
+CGENASMFLAG		= $(subst $(SPACE_CHAR),$(COMMA_CHAR),$(ASMOPTION) -Tb -l   -q -xff -SC),$(CGENPARHOPTION)
+CFLAGS 			= --std-gp65cc89 $(COPTIONS)
+CPPFLAGS		= -E $(CFLAGS) $(CPP_INC_PATH) 
+
+ASM				= "$(TOOLSDIR)\6502_Asm.exe" 
+ASMIRPCHECK		= "$(TOOLSDIR)\6502_AsmIRPatternCheck.exe"
+RESERVEDAREA	= "$(TOOLSDIR)\6502_ReservedArea.exe"
+MASKOPTION		= "$(TOOLSDIR)\6502_MaskOption.exe"
+INITIALTOOL		= "$(TOOLSDIR)\6502_InitialTool.exe"
+RESCONV			= "$(TOOLSDIR)\6502_ResConverter.exe"
+LINK			= "$(TOOLSDIR)\6502_Linker.exe"
+ALINK			= "$(TOOLSDIR)\6502_aliker.exe"
+CC 				= "$(TOOLSDIR)\gp65cc.exe"
+CPP 			= "$(TOOLSDIR)\gp65cpp.exe"
+OVERLAPPER		= "$(TOOLSDIR)\6502_Overlapper.exe"
+
+RM				= del /F 1>NUL 2>NUL
+PROGDATAGEN		= "$(TOOLSDIR)\6502_TableGen.exe"
+ALLOCATOR		= "$(TOOLSDIR)\6502_Allocator.exe"
+LINKSCRIPTGEN	= "$(TOOLSDIR)\6502_LinkerScriptGenerator.exe"
+REPORT			= "$(TOOLSDIR)\6502_Reporter.exe"
+PDFCMSHEET      = "$(TOOLSDIR)\GPePDFConfirmSheet.exe"
+MAKEDIR			= mkdir
+ECHO			= @echo //-----------------------------------------------------------------------
+
+CMSFILE         = $(OUTPUTDIR)\IT31023A.cms
+PDFCMFILE       = $(OUTPUTDIR)\IT31023A_ConfirmSheet.pdf
+PDFCONFIRMSHEETTEMPLATE = C:\Users\dongdong\AppData\Roaming\GENERA~1\GPIDE\GPIDE_~1.0\ePDF\GPL815~1.PDF
+
+OVERWRITELIK	= TRUE
+BANKMODE		= 
+
+BINFILE			= ".\Release\IT31023A.hdb"
+
+OBJFILES		= \
+	".\RELEASE\MAIN.OBJ"\
+	".\RELEASE\INT_VEC.OBJ"\
+	".\RELEASE\LOWINIT.OBJ"\
+	".\RELEASE\SYSTEM.OBJ"\
+	".\RELEASE\TIMER.OBJ"\
+	".\RELEASE\UART.OBJ"
+
+ASMOBJFILES		= \
+	".\RELEASE\CSTARTUP.OBJ"\
+	".\RELEASE\CALENDAR.OBJ"\
+	".\RELEASE\LCD.OBJ"\
+	".\RELEASE\KEYSCAN.OBJ"\
+	".\RELEASE\UART_CODE.OBJ"\
+	".\RELEASE\ADC.OBJ"
+
+CIMFILES		= \
+	".\RELEASE\MAIN.I"\
+	".\RELEASE\INT_VEC.I"\
+	".\RELEASE\LOWINIT.I"\
+	".\RELEASE\SYSTEM.I"\
+	".\RELEASE\TIMER.I"\
+	".\RELEASE\UART.I"
+
+OUTPUTFILES		= "$(IMDIR)\*.resobj" \
+				  "$(IMDIR)\*.i"\
+				  "$(IMDIR)\*.alik"\
+				  "$(IMDIR)\*.olp"\
+				  "$(IMDIR)\*.cg"\
+				  "$(IMDIR)\*.lik"\
+				  "$(IMDIR)\*.asm"\
+				  "$(IMDIR)\*.clst"\
+				  "$(IMDIR)\*.lst"\
+				  "$(IMDIR)\*.obj" \
+				  "$(IMDIR)\*.lib" \
+				  "$(IMDIR)\*.tab" \
+				  "$(IMDIR)\Res_Tbl.obj.asm" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).sym" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).map" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).sbms" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).sbm" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).s37" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).hdb" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).rpt" \
+				  "$(OUTPUTDIR)\$(TARGETNAME).elf" \
+ 				  "$(OUTPUTDIR)\IT31023A.cms"  \
+				  "$(OUTPUTDIR)\IT31023A_ConfirmSheet.pdf" \
+				  "$(OUTPUTDIR)\IT31023A_ConfirmSheet.html" \
+				  "$(OUTPUTDIR)\IT31023A_AIRP.rpt" \
+				  "$(OUTPUTDIR)\IT31023A_Report.html" \
+				  "$(OUTPUTDIR)\IT31023A_Report_MID.html" \
+				  "$(OUTPUTDIR)\IT31023A_Report_MEM.html"
+
+RESDB			= ".\IT31023A.qpcres"
+PROGDB			= ".\IT31023A.qpcact"
+
+RESERVEDAREACFG	= ".\ReservedArea.cfg"
+MASKOPTIONCFG	= ".\MaskOption.cfg"
+INITIALTOOCFG	= ".\InitialValue.cfg"
+BININFOFILE		= "$(TOOLSDIR)\BinInfo\BinInfo.conf"
+USERLIKFILE	    = ".\.\GPL815PXx_Calendar_6502C.lik"
+OVERLAPLIKFILE  = "$(IMDIR)\_Overlap_.lik"
+COMBINELIKFILE  = "$(IMDIR)\_Combine_.lik"
+OLPFILE			= "$(IMDIR)\_Overlap_.olp"
+
+SPACE_CHAR		=
+SPACE_CHAR		+=
+COMMA_CHAR      = ,
+HANDLE_CGENASMPATH 	=  $(subst "$(SPACE_CHAR),"$(COMMA_CHAR),$(subst $(1)$(SPACE_CHAR),$(1)$(COMMA_CHAR),$(2)))
+#-------------------------------------------------------------------------
+# *.I to *.obj
+#-------------------------------------------------------------------------
+".\RELEASE\MAIN.OBJ" : ".\RELEASE\MAIN.I"
+	$(CC) $(CFLAGS) --c1mode  --out-callgraph --no-axy-prolog --list $(IMDIR)\main.clst -o ".\Release\MAIN.OBJ" -Wa $(CGENASMFLAG) < "$(IMDIR)\main.i"
+	$(ECHO)
+".\RELEASE\INT_VEC.OBJ" : ".\RELEASE\INT_VEC.I"
+	$(CC) $(CFLAGS) --c1mode  --out-callgraph --no-axy-prolog --list $(IMDIR)\Int_Vec.clst -o ".\Release\INT_VEC.OBJ" -Wa $(CGENASMFLAG) < "$(IMDIR)\Int_Vec.i"
+	$(ECHO)
+".\RELEASE\CSTARTUP.OBJ" : ".\cstartup.asm" ".\GPL815P.INC"
+	$(ASM) $(ASMFLAG) -o ".\Release\CSTARTUP.OBJ" ".\cstartup.asm"
+	$(ECHO)
+".\RELEASE\LOWINIT.OBJ" : ".\RELEASE\LOWINIT.I"
+	$(CC) $(CFLAGS) --c1mode  --out-callgraph --no-axy-prolog --list $(IMDIR)\lowinit.clst -o ".\Release\LOWINIT.OBJ" -Wa $(CGENASMFLAG) < "$(IMDIR)\lowinit.i"
+	$(ECHO)
+".\RELEASE\SYSTEM.OBJ" : ".\RELEASE\SYSTEM.I"
+	$(CC) $(CFLAGS) --c1mode  --out-callgraph --no-axy-prolog --list $(IMDIR)\system.clst -o ".\Release\SYSTEM.OBJ" -Wa $(CGENASMFLAG) < "$(IMDIR)\system.i"
+	$(ECHO)
+".\RELEASE\CALENDAR.OBJ" : ".\calendar\calendar.asm" ".\GPL815P.INC" ".\KEYSCAN\KEYSCAN_USER.INC" ".\SYS\MACRO.INC" ".\LCD\LCD_USER.INC"
+	$(ASM) $(ASMFLAG) -o ".\Release\CALENDAR.OBJ" ".\calendar\calendar.asm"
+	$(ECHO)
+".\RELEASE\LCD.OBJ" : ".\lcd\lcd.asm" ".\GPL815P.INC" ".\LCD\LCD.TAB" ".\CALENDAR\CALENDAR_USER.INC" ".\KEYSCAN\KEYSCAN_USER.INC" ".\ADC\ADC_USER.INC" ".\LCD\LCD_DEFINE.INC"
+	$(ASM) $(ASMFLAG) -o ".\Release\LCD.OBJ" ".\lcd\lcd.asm"
+	$(ECHO)
+".\RELEASE\KEYSCAN.OBJ" : ".\Keyscan\KeyScan.asm" ".\GPL815P.INC" ".\LCD\LCD_USER.INC" ".\CALENDAR\CALENDAR_USER.INC" ".\SYS\MACRO.INC"
+	$(ASM) $(ASMFLAG) -o ".\Release\KEYSCAN.OBJ" ".\Keyscan\KeyScan.asm"
+	$(ECHO)
+".\RELEASE\TIMER.OBJ" : ".\RELEASE\TIMER.I"
+	$(CC) $(CFLAGS) --c1mode  --out-callgraph --no-axy-prolog --list $(IMDIR)\Timer.clst -o ".\Release\TIMER.OBJ" -Wa $(CGENASMFLAG) < "$(IMDIR)\Timer.i"
+	$(ECHO)
+".\RELEASE\UART.OBJ" : ".\RELEASE\UART.I"
+	$(CC) $(CFLAGS) --c1mode  --out-callgraph --no-axy-prolog --list $(IMDIR)\UART.clst -o ".\Release\UART.OBJ" -Wa $(CGENASMFLAG) < "$(IMDIR)\UART.i"
+	$(ECHO)
+".\RELEASE\UART_CODE.OBJ" : ".\UART\UART_Code.asm" ".\GPL815P.INC"
+	$(ASM) $(ASMFLAG) -o ".\Release\UART_CODE.OBJ" ".\UART\UART_Code.asm"
+	$(ECHO)
+".\RELEASE\ADC.OBJ" : ".\ADC\ADC.asm" ".\GPL815P.INC" ".\KEYSCAN\KEYSCAN_USER.INC" ".\SYS\MACRO.INC"
+	$(ASM) $(ASMFLAG) -o ".\Release\ADC.OBJ" ".\ADC\ADC.asm"
+	$(ECHO)
+
+
+#-------------------------------------------------------------------------
+# Source file to *.I
+#-------------------------------------------------------------------------
+".\RELEASE\MAIN.I" : ".\MAIN.C" ".\GPL815P.H" ".\SYSTEM.H" ".\CALENDAR\CALENDAR.H" ".\LCD\LCD_USER.H" ".\UART\UART_CODE.H" ".\KEYSCAN\KEY_USER.H" ".\TIMER\TIMER.H" ".\UART\UART_RX.H" ".\ADC\ADC.H"
+	$(CC) $(CPPFLAGS) ".\main.c" -o "$(IMDIR)\main.i"
+	$(ECHO)
+".\RELEASE\INT_VEC.I" : ".\INT_VEC.C" ".\GPL815P.H" ".\VARIABLE.H" ".\SYSTEM.H" ".\LCD\LCD_USER.H" ".\UART\UART_CODE.H" ".\UART\UART_RX.H" ".\KEYSCAN\KEY_USER.H"
+	$(CC) $(CPPFLAGS) ".\Int_Vec.c" -o "$(IMDIR)\Int_Vec.i"
+	$(ECHO)
+".\RELEASE\LOWINIT.I" : ".\LOWINIT.C" ".\GPL815P.H"
+	$(CC) $(CPPFLAGS) ".\lowinit.c" -o "$(IMDIR)\lowinit.i"
+	$(ECHO)
+".\RELEASE\SYSTEM.I" : ".\SYSTEM.C" ".\GPL815P.H" ".\VARIABLE.H" ".\KEYSCAN\KEY_USER.H" ".\TIMER\TIMER.H" ".\UART\UART_RX.H"
+	$(CC) $(CPPFLAGS) ".\system.c" -o "$(IMDIR)\system.i"
+	$(ECHO)
+".\RELEASE\TIMER.I" : ".\TIMER\TIMER.C" ".\GPL815P.H" ".\CALENDAR\CALENDAR.H" ".\KEYSCAN\KEY_USER.H" ".\LCD\LCD_USER.H"
+	$(CC) $(CPPFLAGS) ".\Timer\Timer.c" -o "$(IMDIR)\Timer.i"
+	$(ECHO)
+".\RELEASE\UART.I" : ".\UART\UART.C" ".\GPL815P.H" ".\CALENDAR\CALENDAR.H" ".\LCD\LCD_USER.H" ".\UART\UART_CODE.H" ".\UART\UART_RX.H" ".\KEYSCAN\KEY_USER.H" ".\TIMER\TIMER.H"
+	$(CC) $(CPPFLAGS) ".\UART\UART.c" -o "$(IMDIR)\UART.i"
+	$(ECHO)
+
+
+.PHONY : Overlapper
+Overlapper:
+	$(OVERLAPPER) $(OLPOPTIONS) -p "IT31023A.cglst" -o $(OVERLAPLIKFILE) -s $(OLPFILE) -oasm "$(IMDIR)\_GPCBankOptimization.asm"
+	type $(USERLIKFILE) > $(COMBINELIKFILE) 
+	echo. >> $(COMBINELIKFILE) 	
+	type $(OVERLAPLIKFILE) >> $(COMBINELIKFILE) 
+	$(ECHO)	
+	$(ASM) $(ASMFLAG) -o "$(IMDIR)\_GPCBankOptimization.obj" "$(IMDIR)\_GPCBankOptimization.asm"
+	$(ECHO)	
+
+ifdef OVERWRITELIK
+	$(LINKSCRIPTGEN) -I ".\LinkerScriptParam"
+	$(ECHO)
+endif
+
+.PHONY : alik
+alik: $(ASMOBJFILES) $(USERLIKFILE)
+ifdef BANKMODE
+	$(ALINK) -b $(CHIPINFO) -p "IT31023A.alst" -o "$(IMDIR)" -l $(USERLIKFILE)
+	$(ECHO)
+endif
+
+.SUFFIXES : .c .i .asm .obj
+
+.PHONY : build	
+build: 	build_init all
+	
+.PHONY : rebuild	
+rebuild: clean rebuild_init all	
+
+.PHONY : all
+all : preBuild outputdir resconvert tablegen compile asmirpcheck preLink linker postLink maskoptions reporter postBuild
+
+.PHONY : clean
+clean :
+	-if not exist "${IMDIR}\$(NULL)" ${MAKEDIR} "${IMDIR}"
+	-if not exist "${OUTPUTDIR}\$(NULL)" ${MAKEDIR} "${OUTPUTDIR}"
+	$(RM)  $(BINFILE)
+	$(RM)  $(OUTPUTFILES)
+	$(ECHO)
+
+.PHONY : build_init	
+build_init:	$(USERLIKFILE)
+	$(INITIALTOOL) -R $(RESDB) -P $(PROGDB) -F $(INITIALTOOCFG) -B $(CHIPINFO) -T Asm -A Reflash
+	
+.PHONY : rebuild_init	
+rebuild_init: $(USERLIKFILE)
+	$(INITIALTOOL) -R $(RESDB) -P $(PROGDB) -F $(INITIALTOOCFG) -B $(CHIPINFO) -T Asm -A Create
+	
+.PHONY : outputdir	
+outputdir:
+	if not exist "$(OUTPUTDIR)\$(NULL)" mkdir "$(OUTPUTDIR)"
+	if not exist "$(IMDIR)\$(NULL)" mkdir "$(IMDIR)"
+	$(ECHO)
+	
+.PHONY : resconvert
+resconvert : 
+	$(RESERVEDAREA) -D $(RESDB) -R $(RESERVEDAREACFG)
+	$(ECHO)
+	$(RESCONV) -R $(RESDB) -P $(PROGDB) $(CCONF)  -O "$(PROJECTDIR)\\$(IMDIR)" -B $(BODYSERIES) $(ASM_INC_PATH) -CP "$(PROJECTDIR)\resource.cfp" -H Yes
+	$(ECHO)
+	
+.PHONY : tablegen	
+tablegen :
+	$(PROGDATAGEN) -T GP_C -R $(RESDB) -S CODE -O "$(IMDIR)"
+	$(ECHO)
+	$(ALLOCATOR) -R $(RESDB) -C $(CHIPINFO)
+	$(ECHO)
+
+.PHONY : compile
+compile : Preprocessor alik compileobj Overlapper rmbinfile
+
+.PHONY : Preprocessor	
+Preprocessor: $(CIMFILES) 
+	
+.PHONY : compileobj
+compileobj: $(OBJFILES)
+
+.PHONY : asmirpcheck
+asmirpcheck :
+	$(ASMIRPCHECK) $(ASMIRPCHECKFLG)
+	
+.PHONY : rmbinfile
+rmbinfile : 
+	$(RM) $(BINFILE)
+	$(ECHO)
+	
+.PHONY : linker			
+linker :
+	$(LINK) ".\_Prog_.lik"
+	$(ECHO)
+	
+.PHONY : maskoptions	
+maskoptions:	
+	$(MASKOPTION) -i $(BINFILE) -o $(BINFILE) -ePDFrpt "$(CMSFILE)" -bf $(CHIPINFO) -m $(MASKOPTIONCFG) -bi $(BININFOFILE)
+	$(ECHO)
+	$(PDFCMSHEET) -T "$(PDFCONFIRMSHEETTEMPLATE)" -P "$(CMSFILE)" -O "$(PDFCMFILE)"
+	@echo =
+	$(ECHO)	
+	
+.PHONY : reporter
+reporter : 
+	$(REPORT) -Raqe $(RESDB) -Pfst $(PROGDB) -O "$(OUTPUTDIR)\IT31023A_Report" -H -M "$(OUTPUTDIR)\IT31023A.map" -F $(CHIPINFO)
+	$(ECHO)	
+	
+#-------------------------------------------------------------------------
+# Build event
+#-------------------------------------------------------------------------
+.PHONY : preBuild preLink postLink postBuild
+preBuild:
+	@echo Pre-Build Event:
+	
+	$(ECHO)
+preLink:
+	@echo Pre-Link Event:
+	
+	$(ECHO)
+postLink:
+	@echo Post-Link Event:
+	
+	$(ECHO)
+postBuild:
+	@echo Post-Build Event:
+	
+	$(ECHO)
+	
+

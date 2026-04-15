@@ -1,0 +1,1576 @@
+; or disclosed in whole in part without prior written permission.
+;       (C) COPYRIGHT 2009   Generalplus TECHNOLOGY CO.                            
+;                   ALL RIGHTS RESERVED
+; The entire notice above must be reproduced on all authorized copies.
+;==================================================================================
+;==================================================================================
+; Name                  : lcd.asm
+; Applied Body          : GPL815PX
+; Programmer            : yanxiaodu
+; Description           : lcd function
+; History version       : v1.0  2011/06/21 by yanxiaodu first modify
+;==================================================================================
+
+;==========================================
+; Compiler parameter define
+;==========================================
+.SYNTAX 6502
+.LINKLIST
+.SYMBOLS
+
+;==========================================
+; Constant define area
+;==========================================
+C_Bit_0:				.EQU	%00000001
+C_Bit_1:				.EQU	%00000010
+C_Bit_2:				.EQU	%00000100
+C_Bit_3:				.EQU	%00001000
+C_Bit_4:				.EQU	%00010000
+C_Bit_5:				.EQU	%00100000
+C_Bit_6:				.EQU	%01000000
+C_Bit_7:				.EQU	%10000000
+C_HideHigh:				.EQU	%00001111
+C_HideLow:				.EQU	%11110000
+
+C_LCDBUFFER_LENGTH:		.EQU	30D
+
+;==========================================
+; Include file area
+;==========================================
+.include		GPL815P.inc
+.INCLUDE    	lcd\lcd.tab
+.INCLUDE		calendar\calendar_user.inc
+.INCLUDE		RFC\rfc.inc
+.INCLUDE		adc\adc_user.inc
+;==========================================
+; External declare area
+;==========================================
+;==========================================
+; Public declare area
+;==========================================
+.PUBLIC		F_DispFlag
+.PUBLIC		F_NotDispFlag
+.PUBLIC		_F_DispFlag
+.PUBLIC		_F_NotDispFlag
+.PUBLIC		F_Settup_Hour_LCD_Disp
+.PUBLIC		F_Settup_Minute_LCD_Disp
+.PUBLIC		F_Settup_alarmhour_LCD_Disp
+.PUBLIC		FF_Settup_alarmminu_LCD_Disp
+.PUBLIC		F_Settup_day_LCD_Disp
+.PUBLIC		F_Settup_Year_LCD_Disp
+.PUBLIC		F_Settup_month_LCD_Disp
+
+.PUBLIC		F_Flash_Dot
+.PUBLIC		_F_Flash_Dot
+.PUBLIC		F_Disp_Digital
+.PUBLIC		_F_Disp_Digital
+.PUBLIC		F_Fill_ALL_LCDDPRAM
+.PUBLIC		_F_Fill_ALL_LCDDPRAM
+.PUBLIC		F_LCD_Initinal
+.PUBLIC		_F_LCD_Initinal
+
+
+.PUBLIC		F_LCDDisplay_Proc
+.PUBLIC		_F_LCDDisplay_Proc
+.PUBLIC		F_SeetupDisplay_Proc
+.PUBLIC		_F_SeetupDisplay_Proc
+.PUBLIC		F_Flash_COL_Dot
+.PUBLIC		_F_Flash_COL_Dot
+
+.PUBLIC		F_Fill_LCDDPRAM
+.PUBLIC		_F_Fill_LCDDPRAM
+
+.PUBLIC		RB_Lcd_Updata_Flag
+.PUBLIC		_RB_Lcd_Updata_Flag
+.PUBLIC		R_LcdBuff
+.PUBLIC		_R_LcdBuff
+.PUBLIC		R_Temp0
+.PUBLIC		R_Temp1
+.PUBLIC		R_Temp2
+.PUBLIC		R_Temp3
+.PUBLIC		R_Temp4
+
+.PUBLIC		R_flash_Temp
+.PUBLIC		_R_flash_Temp
+.PUBLIC		RB_Mode_Disp_Status
+.PUBLIC		_RB_Mode_Disp_Status
+
+
+.PUBLIC		RB_LCD_Display_change
+.PUBLIC		_RB_LCD_Display_change
+.PUBLIC		RB_Temp_CF_Flag
+.PUBLIC		_RB_Temp_CF_Flag
+.PUBLIC		RB_Setup_LCD_Status
+.PUBLIC		_RB_Setup_LCD_Status
+.PUBLIC		RB_Setup_Status
+.PUBLIC		_RB_Setup_Status
+
+;==========================================
+;Variable RAM declare area
+;==========================================
+lcdram:	.section	.PAGE0
+R_LcdBuff:		.DS		C_LCDBUFFER_LENGTH+1				; 5com   *48seg   5*6 30byte
+_R_LcdBuff:		.equ	R_LcdBuff
+R_Temp0:		.DS		1
+R_Temp1:		.DS		1
+R_Temp2:		.DS		1
+R_Temp3:		.DS		1
+R_Temp4:		.DS		1
+R_Disp_Temp:	.DS		1
+R_Disp_Index:	.DS		1
+
+
+RB_Lcd_Updata_Flag:		.DS		1
+_RB_Lcd_Updata_Flag:		.equ		RB_Lcd_Updata_Flag
+ D_LcdtimesetUpdate:	.EQU		10000000B
+ D_LcdUpdate:			.EQU		40H
+ D_LcdChangeUpdate:		.EQU		20H
+
+ R_flash_Temp:		.ds		1
+ _R_flash_Temp:		.equ	R_flash_Temp
+ 
+ R_MathTemp:		.ds		1
+RB_Mode_Disp_Status:		.ds		1
+_RB_Mode_Disp_Status:		.equ	RB_Mode_Disp_Status
+D_Mode_DispStatMsk:			.equ	0x07
+
+RB_Temp_LCD_buffer:		.ds		3
+
+RB_Setup_LCD_Status:		.ds		1
+_RB_Setup_LCD_Status:		.equ	RB_Setup_LCD_Status
+	D_Time_Minute_setup_lcd:		.equ	0
+	D_Time_Hour_setup_lcd:			.equ	1
+	D_Date_Year_setup_lcd:			.equ	2
+	D_Date_Month_setup_lcd:			.equ	3
+	D_Date_Day_setup_lcd:			.equ	4
+	D_Alarm_Minute_setup_lcd:		.equ	5
+	D_Alarm_Hour_setup_lcd:			.equ	6
+	
+RB_Setup_Status:		.ds		1
+_RB_Setup_Status:		.equ	RB_Setup_Status
+	D_Setting_flag:			.equ	0x80
+
+	
+
+
+.ENDS
+LCD_NRAM:			.section
+
+RB_LCD_Display_change:		.ds		1
+_RB_LCD_Display_change:		.equ		RB_LCD_Display_change
+
+RB_Power_3cnt:		.ds		1
+RB_Power_2cnt:		.ds		1
+RB_Power_1cnt:		.ds		1
+RB_Power_0cnt:		.ds		1
+
+
+RB_LCD_F_Temp_L:		.ds		1
+RB_LCD_F_Temp_M:		.ds		1
+RB_LCD_F_Temp_H:		.ds		1
+
+RB_Temp_CF_Flag:		.ds		1
+_RB_Temp_CF_Flag:		.equ	RB_Temp_CF_Flag
+	D_F_Flag:			.equ	0x80
+
+.ENDS
+;==========================================
+; code starting 
+;==========================================
+lcdasm:		.section		
+.INCLUDE		lcd\lcd_define.inc
+; ==============================================
+; Function	name: F_Flash_Dot 
+; Purpose	    : Make a dot flash 
+; Parameter		: A
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; =============================================		
+F_Flash_Dot:
+_F_Flash_Dot:
+		TAY
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_NotDisp
+L_LCD_Disp:
+		TYA
+		JSR		F_DispFlag
+		RTS		
+L_NotDisp:
+		TYA
+		JSR		F_NotDispFlag			
+		RTS
+; ==============================================
+; Function	name: F_Flash_COL_Dot 
+; Purpose	    : Make a dot flash 
+; Parameter		: X
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; =============================================		
+F_Flash_COL_Dot:
+_F_Flash_COL_Dot:
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		?L_Not_show_col
+?L_Flash:		
+		LDA		#0ah				;col vu
+		JSR		F_DispFlag
+		LDA		#12h				;COL fu
+		JSR		F_DispFlag
+		RTS
+?L_Not_show_col:
+		LDA		#0ah
+		JSR		F_NotDispFlag		;col vu
+		LDA		#12h
+		JSR		F_NotDispFlag		;COL fu
+		RTS
+		
+; ==============================================
+; Function	name: F_LCD_Initinal 
+; Purpose	    : Make a dot flash 
+; Parameter		: X
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; =============================================		
+
+F_LCD_Initinal:
+_F_LCD_Initinal:
+	LDA		#D_LCDBias3
+	STA		P_LCD_BIAS_Ctrl	
+	
+	
+	;Pump Clock = 4KHz
+	LDA		#D_PumpEn+D_PumpClk8K
+	STA		P_LCD_PUMP_Ctrl
+	
+	
+	;LCD Clock
+	LDA		#(((8192/80))/(D_5COM+1))-D_48SEG-5
+	STA		P_LCD_Clock
+	
+	LDA		#00h
+	STA		P_LCD_Ctrl2
+	;LCD resolution : 8COM * 48SEG
+	LDA		#D_5COM
+	STA		P_LCD_COM_Num
+	LDA		#D_48SEG
+	STA		P_LCD_SEG_Num	
+	
+	;1/5 Bias, VLCD = 4.5V
+	LDA		#0Fh			
+	STA		P_LCD_VLCD_Ctrl
+	
+	SEC
+	LDA		#0xff
+L_Delay?:						;Delay to ensure pump stable
+	SBC		#0x01
+	NOP
+	NOP
+	BNE		L_Delay?
+	
+	LDA		#00h
+	STA		P_LCD_StartAddr_LB
+	;LCD Enable and display on
+	LDA		#D_LCDEn+D_DisplayOn
+	STA		P_LCD_Ctrl1
+	RTS
+; ==============================================
+; Function	name: F_Fill_LCDDPRAM 
+; Purpose	    : show clock AM PM flag
+; Parameter		: 
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 3
+; =============================================
+F_Fill_LCDDPRAM:
+_F_Fill_LCDDPRAM:
+			LDX		#0
+			
+	;com0	
+			LDA		R_LcdBuff,X
+			STA		$2000
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2001
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2002
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2003
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2004
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2005
+			
+			LDX		#6
+	;com1	
+			LDA		R_LcdBuff,X
+			STA		$2006
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2007	
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2008
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2009
+			INX
+			LDA		R_LcdBuff,X
+			STA		$200a
+			INX
+			LDA		R_LcdBuff,X
+			STA		$200b
+
+			
+			
+			LDX		#0CH
+	;com2
+			LDA		R_LcdBuff,X
+			STA		$200c
+			INX
+			LDA		R_LcdBuff,X
+			STA		$200d
+			INX
+			LDA		R_LcdBuff,X
+			STA		$200e
+			INX
+			LDA		R_LcdBuff,X
+			STA		$200f
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2010
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2011
+	
+			
+			
+			LDX		#12H
+	;com3
+			LDA		R_LcdBuff,X
+			STA		$2012
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2013		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2014		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2015		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2016		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2017		
+			
+			LDX		#18H
+	;com4
+			LDA		R_LcdBuff,X
+			STA		$2018
+			INX
+			LDA		R_LcdBuff,X
+			STA		$2019		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$201a		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$201b		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$201c		
+			INX
+			LDA		R_LcdBuff,X
+			STA		$201d		
+
+
+			RTS
+;============================================================================
+;Name:			F_SeetupDisplay_Proc
+;Purpose:		LCD display service
+;Parameters:	None
+;Destroy:		A,X,Y
+;Stack depth:	2 bytes
+;============================================================================
+F_SeetupDisplay_Proc:
+_F_SeetupDisplay_Proc:
+		LDA		RB_Setup_Status
+		AND		#D_Setting_flag
+		BNE		?L_settup_LCD
+		RTS
+?L_settup_LCD:
+		LDA		RB_Lcd_Updata_Flag
+		AND		#D_LcdUpdate
+		BNE		?L_LCDDisplay
+?L_Not_show_mode_end:
+?L_Not_show_mode_and_store_mode:
+		RTS
+?L_LCDDisplay:
+		LDA		RB_Lcd_Updata_Flag
+		AND		#~D_LcdUpdate
+		AND		#~D_LcdtimesetUpdate
+		STA		RB_Lcd_Updata_Flag
+
+?L_Check_disp_mode:
+		LDA		RB_Setup_LCD_Status
+		AND		#03h
+		ASL		A
+		TAX
+		LDA     T_SETTUP_DISPSVC_FUN+1,X
+		PHA
+		LDA     T_SETTUP_DISPSVC_FUN,X
+		PHA
+	    RTS
+
+;============================================================================
+T_SETTUP_DISPSVC_FUN:
+		DW		F_Settup_DispMinuteTime-1		;0		
+		DW		F_Settup_DispHourTime-1			;1		
+		DW		F_Settup_DispYearDate-1				;2		
+		DW		F_Settup_DispMonthDate-1			;3		
+		DW		F_Settup_DispDayDate-1				;4		
+		DW		F_Settup_DispMinuteAlarm-1			;5		
+		DW		F_Settup_DispHourAlarm-1			;6		
+F_SETTUP_DispNone:
+		RTS
+;============================================================================
+;Name:			F_Settup_DispMinuteTime
+;Purpose:		LCD display service
+;Parameters:	None
+;Destroy:		A,X,Y
+;Stack depth:	2 bytes
+;============================================================================
+F_Settup_DispMinuteTime:
+	
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_MinuNotDisp
+F_Settup_Minute_LCD_Disp:
+;minu
+		LDX		R_DateMinute
+		JSR		F_Hex_To_BCD
+		LDY		#03h
+		JSR		F_Disp_Digital
+		RTS		
+L_MinuNotDisp:
+		LDA		#aah
+		LDY		#03h
+		JSR		F_Disp_Digital		
+		RTS
+;============================================
+F_Settup_DispHourTime:
+
+		
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_Hour_NotDisp
+F_Settup_Hour_LCD_Disp:
+		LDA		#07H
+		JSR		F_NotDispFlag
+		LDA		#08H
+		JSR		F_NotDispFlag
+		
+		LDA		RB_12_24_Status
+		BMI		?L_12H_settup
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+		JMP		?L_24H_settup
+?L_12H_settup:
+		
+		LDX		R_AlarmHour
+		JSR		F_Hex_To_BCD
+		CMP		#12h
+		BCC		?L_AM_VU
+		LDA		#08H
+		BNE		?L_AP_Show
+?L_AM_VU:
+		LDA		#07H
+?L_AP_Show:
+		JSR		F_DispFlag
+	
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+		JSR		F_24TO12Change
+?L_24H_settup:
+		LDY		#01h
+		JSR		F_Disp_Digital
+		RTS		
+L_Hour_NotDisp:
+		LDA		#aah
+		LDY		#01h
+		JSR		F_Disp_Digital		
+		RTS
+;============================================================================
+;Name:			F_Settup_DispYearDate
+;Purpose:		LCD display service
+;Parameters:	None
+;Destroy:		A,X,Y
+;Stack depth:	2 bytes
+;============================================================================
+F_Settup_DispYearDate:
+	
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_YearNotDisp
+F_Settup_Year_LCD_Disp:
+;minu
+		LDX		R_Year
+		JSR		F_Hex_To_BCD
+		LDY		#03h
+		JSR		F_Disp_Digital
+		LDA		#20d
+		LDY		#01h
+		JSR		F_Disp_Digital
+		RTS		
+L_YearNotDisp:
+		LDA		#aah
+		LDY		#03h
+		JSR		F_Disp_Digital	
+		LDA		#aah
+		LDY		#01h
+		JSR		F_Disp_Digital	
+		RTS
+;============================================================================
+F_Settup_DispMonthDate
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_MonthNotDisp
+F_Settup_month_LCD_Disp:
+;MONTH
+		LDX		R_Month
+		JSR		F_Hex_To_BCD
+		LDY		#0Bh
+		JSR		F_Disp_Digital
+		RTS		
+L_MonthNotDisp:
+		LDA		#aah
+		LDY		#0Bh
+		JSR		F_Disp_Digital	
+		RTS
+;============================================================================
+F_Settup_DispDayDate
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_DayNotDisp
+F_Settup_day_LCD_Disp:
+;MONTH
+		LDX		R_Day
+		JSR		F_Hex_To_BCD
+		LDY		#0dh
+		JSR		F_Disp_Digital
+		RTS		
+L_DayNotDisp:
+		LDA		#aah
+		LDY		#0dh
+		JSR		F_Disp_Digital	
+		RTS
+;============================================================================
+;Name:			F_Settup_DispMinuteAlarm
+;Purpose:		LCD display service
+;Parameters:	None
+;Destroy:		A,X,Y
+;Stack depth:	2 bytes
+;============================================================================
+F_Settup_DispMinuteAlarm:
+	
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_AlarmmNotDisp
+F_Settup_alarmminu_LCD_Disp:
+;MONTH
+		LDX		R_AlarmMinute
+		JSR		F_Hex_To_BCD
+		LDY		#07H
+		JSR		F_Disp_Digital
+		RTS		
+L_AlarmmNotDisp:
+		LDA		#aah
+		LDY		#07h
+		JSR		F_Disp_Digital	
+		RTS
+
+;============================================================================
+F_Settup_DispHourAlarm:
+	
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		L_AlarmHourNotDisp
+F_Settup_alarmhour_LCD_Disp:
+
+		
+		LDA		RB_12_24_Status
+		BMI		?L_12H_alarm
+		LDX		R_AlarmHour
+		JSR		F_Hex_To_BCD
+		JMP		?L_24H_alarm
+?L_12H_alarm:
+		
+		LDX		R_AlarmHour
+		JSR		F_Hex_To_BCD
+		CMP		#12h
+		BCC		?L_AM_fu
+		LDA		#21H
+		BNE		?L_AP_Show
+?L_AM_fu:
+		LDA		#20H
+?L_AP_Show:
+		JSR		F_DispFlag
+	
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+		JSR		F_24TO12Change
+?L_24H_alarm:
+		LDY		#05h
+		JSR		F_Disp_Digital
+		RTS		
+L_AlarmHourNotDisp:
+		LDA		#aah
+		LDY		#05h
+		JSR		F_Disp_Digital	
+		RTS
+;============================================================================
+;Name:			F_LCDDisplay_Proc
+;Purpose:		LCD display service
+;Parameters:	None
+;Destroy:		A,X,Y
+;Stack depth:	2 bytes
+;============================================================================
+F_LCDDisplay_Proc:
+_F_LCDDisplay_Proc:
+
+		LDA		RB_Lcd_Updata_Flag
+		AND		#D_LcdUpdate
+		BNE		?L_LCDDisplay
+?L_Not_show_mode_end:
+?L_Not_show_mode_and_store_mode:
+		RTS
+?L_LCDDisplay:
+		LDA		RB_Lcd_Updata_Flag
+		AND		#~D_LcdUpdate
+		AND		#~D_LcdtimesetUpdate
+		STA		RB_Lcd_Updata_Flag
+
+?L_Check_disp_mode:
+		LDA		RB_Mode_Disp_Status
+		AND		#D_Mode_DispStatMsk
+		ASL		A
+		TAX
+		LDA     T_DISPSVC_FUN+1,X
+		PHA
+		LDA     T_DISPSVC_FUN,X
+		PHA
+	    RTS
+?L_Disp_mode_change:
+;		LDA		RB_Mode_Disp_Status
+;		AND		#D_Mode_DispStatMsk
+		STA		RB_LCD_Display_change
+		LDA		#00h
+		JSR		F_Fill_ALL_LCDDPRAM
+
+		JMP		?L_Check_disp_mode
+;============================================================================
+T_DISPSVC_FUN:
+		DW		F_DispTime-1			;0		
+F_DispNone:
+		RTS
+
+;====time==============
+F_Time_FU_Modul:
+;hour		
+		LDA		RB_12_24_Status
+		BMI		?L_12H
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+
+		JMP		?L_24H
+?L_12H:
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+		JSR		F_24TO12Change
+?L_24H:
+		LDY		#0Fh
+		JSR		F_Disp_Digital
+;minu
+		LDX		R_DateMinute
+		JSR		F_Hex_To_BCD
+		LDY		#11h
+		JSR		F_Disp_Digital
+		
+
+		RTS
+;====time==VU============
+F_Time_VU_Modul:
+;hour	
+		LDA		#07H
+		JSR		F_NotDispFlag
+		LDA		#08H
+		JSR		F_NotDispFlag
+		
+		LDA		RB_12_24_Status
+		BMI		?L_12H
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+		JMP		?L_24H
+?L_12H:
+		
+		LDX		R_AlarmHour
+		JSR		F_Hex_To_BCD
+		CMP		#12h
+		BCC		?L_AM_VU
+		LDA		#08H
+		BNE		?L_AP_Show
+?L_AM_VU:
+		LDA		#07H
+?L_AP_Show:
+		JSR		F_DispFlag
+	
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+		JSR		F_24TO12Change
+?L_24H:
+		LDY		#01h
+		JSR		F_Disp_Digital
+;minu
+		LDX		R_DateMinute
+		JSR		F_Hex_To_BCD
+		LDY		#03h
+		JSR		F_Disp_Digital
+
+		RTS
+;====Week==============
+F_Week_Modul:
+;week
+		LDA		R_Week
+		JSR		F_DispFlag
+		RTS
+;====adc==============
+F_ADC_Modul:
+;adc
+		LDA		R_ADC_Updata_Flag
+		AND		#D_ADC_updata
+		BNE		?L_ADC_LCD
+		RTS
+?L_ADC_LCD:
+		LDA		R_ADC_Updata_Flag
+		AND		#~D_ADC_updata
+		STA		R_ADC_Updata_Flag
+		
+		
+		LDA		#1AH				;G1
+		JSR		F_DispFlag
+		
+		LDA		#1BH				;G2
+		JSR		F_NotDispFlag		
+		LDA		#1CH				;G3
+		JSR		F_NotDispFlag		
+		LDA		#1DH				;G4
+		JSR		F_NotDispFlag	
+		
+		
+		LDX		#00h
+		LDA		R_ADC_Last_HB
+		CMP		T_Battery_table+1,x
+		BCS		?L_Mjge
+		
+		LDX		#04h
+		LDA		R_ADC_Last_HB
+		CMP		T_Battery_table+1,x
+		BCC		?L_0ge
+		
+		LDX		#02h
+		LDA		R_ADC_Last_HB
+		CMP		T_Battery_table+1,x
+		BCC		?L_1ge
+		BCS		?L_2ge
+?L_Mjge:			;3ge
+		LDX		RB_Power_3cnt
+		JSR		F_Battery_cnt_lwjx
+		STX		RB_Power_3cnt
+		BCC		?L_ADC_Exit
+?L_Mjge_show:
+		LDA		#1BH				;G2
+		JSR		F_DispFlag		
+		LDA		#1CH				;G3
+		JSR		F_DispFlag		
+		LDA		#1DH				;G4
+		JSR		F_DispFlag
+		RTS
+?L_0ge:
+		LDX		RB_Power_0cnt
+		JSR		F_Battery_cnt_lwjx
+		STX		RB_Power_0cnt
+		BCC		?L_1ge_show
+		LDA		#1ah
+		JSR		F_Flash_Dot
+		RTS	
+?L_1ge:
+		LDX		RB_Power_1cnt
+		JSR		F_Battery_cnt_lwjx
+		STX		RB_Power_1cnt
+		BCC		?L_2ge_show
+?L_1ge_show:
+		LDA		#1DH				;G4
+		JSR		F_DispFlag	
+		RTS	
+?L_2ge:
+		LDX		RB_Power_2cnt
+		JSR		F_Battery_cnt_lwjx
+		STX		RB_Power_2cnt
+		BCC		?L_Mjge_show
+?L_2ge_show:
+		LDA		#1CH				;G3
+		JSR		F_DispFlag		
+		LDA		#1DH				;G4
+		JSR		F_DispFlag	
+		RTS
+	
+		
+?L_ADC_Exit:
+		RTS
+;------------------------------------------
+T_Battery_table:
+		.DW		2950H				;3ge
+		.DW		2650h				;2ge
+		.DW		2350h				;1ge
+;====F_Battery_cnt_lwjx==============	
+F_Battery_cnt_lwjx:
+		INX
+		CPX		#6
+		BCS		?L_Max
+		CLC
+		RTS
+?L_Max:
+		LDX		#06h
+		SEC
+		RTS
+;====data==============
+F_DATA_Modul:
+;month
+		LDX		R_Month
+		JSR		F_Hex_To_BCD
+		LDY		#0Bh
+		JSR		F_Disp_Digital
+;day
+		LDX		R_Day
+		JSR		F_Hex_To_BCD
+		LDY		#0DH
+		JSR		F_Disp_Digital
+		
+		LDA		#14h		;M/D
+		JSR		F_DispFlag
+		
+		RTS
+;====alarm==============
+F_Alarm_Modul:
+;alarm hour
+	
+		LDA		#20H
+		JSR		F_NotDispFlag
+		LDA		#21H
+		JSR		F_NotDispFlag
+		
+		LDA		RB_12_24_Status
+		BMI		?L_12H
+		LDX		R_AlarmHour
+		JSR		F_Hex_To_BCD
+		JMP		?L_24H
+?L_12H:
+		
+		LDX		R_AlarmHour
+		JSR		F_Hex_To_BCD
+		CMP		#12h
+		BCC		?L_AM_fu
+		LDA		#21H
+		BNE		?L_AP_Show
+?L_AM_fu:
+		LDA		#20H
+?L_AP_Show:
+		JSR		F_DispFlag
+	
+		LDX		R_DateHour
+		JSR		F_Hex_To_BCD
+		JSR		F_24TO12Change
+?L_24H:
+		LDY		#05h
+		JSR		F_Disp_Digital
+;alarm minute
+
+		LDX		R_AlarmMinute
+		JSR		F_Hex_To_BCD
+		LDY		#07H
+		JSR		F_Disp_Digital
+		
+		LDA		#15h		;alarm col
+		JSR		F_DispFlag
+		
+		
+		
+		LDA		R_Alarm_ENDIS_Flag
+		AND		#D_Alarm_EN
+		BNE		?L_Enable_alarm
+		LDA		#0fh		;alarm
+		JSR		F_NotDispFlag
+		RTS
+?L_Enable_alarm:
+		LDA		#0fh		;alarm
+		JSR		F_DispFlag
+		
+		
+		RTS		
+		
+		
+		
+;====temp==============
+F_Temp_Modul:
+		LDA		RB_RfcState
+		AND		#D_RfcTmpDispUpdate
+		BEQ		?L_Temp_exit
+		
+		LDA		RB_RfcState
+		AND		#~D_RfcTmpDispUpdate
+		STA		RB_RfcState
+		
+		LDA		#11h		;TEMP NEGATIVE
+		JSR		F_NotDispFlag	
+		
+		LDA		#13h		;temp digit dot
+		JSR		F_DispFlag
+
+		LDA		#1eh		;temp flag 
+		JSR		F_DispFlag
+
+		
+		LDA		#16h		;~F GSYS
+		JSR		F_DispFlag
+		
+		LDA		RB_Temp_CF_Flag
+		AND		#D_F_Flag
+		BNE		?L_F_Change
+		
+		
+
+		LDA		#18h		;~C
+		JSR		F_DispFlag		
+
+		LDA		#17h		;~F
+		JSR		F_NotDispFlag	
+		
+		LDA		RW_LastTem+1
+		AND		#80h
+		BEQ		?L_Positive
+?L_Negative:
+		LDA		#11h		;TEMP NEGATIVE
+		JSR		F_DispFlag	
+		JMP		?L_Temp_checkshow
+?L_Positive:
+		LDA		#11h		;TEMP NEGATIVE
+		JSR		F_NotDispFlag	
+		
+?L_Temp_checkshow:
+		LDA		RW_LastTem+1
+		AND		#0fh
+		BEQ		?L_Ax
+		ROL		A
+		ROL		A
+		ROL		A
+		ROL		A
+		AND		#f0h
+		STA		RB_Temp_LCD_buffer+1
+		BNE		?L_Check_digit
+?L_Ax:
+		LDA		#A0H
+		STA		RB_Temp_LCD_buffer+1
+		
+?L_Check_digit:
+		LDA		RW_LastTem
+		AND		#F0H
+		ROR		A
+		ROR		A
+		ROR		A
+		ROR		A
+		AND		#0fh
+		ORA		RB_Temp_LCD_buffer+1
+		STA		RB_Temp_LCD_buffer+1		;HIGH
+		
+		LDA		RW_LastTem
+		AND		#0FH
+		STA		RB_Temp_LCD_buffer			;LOW
+		
+?L_Show_temp:	
+;low
+		LDA		RB_Temp_LCD_buffer
+		LDY		#17h
+		JSR		F_Disp_Digital
+;high
+		LDA		RB_Temp_LCD_buffer+1
+		LDY		#09H
+		JSR		F_Disp_Digital
+
+?L_Temp_exit:
+		RTS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+?L_F_Change:
+		LDA		#18h		;~C
+		JSR		F_NotDispFlag
+		
+		LDA		#17h		;~F
+		JSR		F_DispFlag	
+
+		LDA		#11h				;TEMP  -
+		JSR		F_NotDispFlag
+		
+		LDA		#00h
+		STA		RB_LCD_F_Temp_L
+		STA		RB_LCD_F_Temp_H
+		STA		RB_LCD_F_Temp_M
+		
+		LDA		RW_LastTem+1
+		STA		RB_Temp_LCD_buffer+1
+		LDA		RW_LastTem
+		STA		RB_Temp_LCD_buffer
+		
+		LDA		RW_LastTem+1
+		AND		#0FH
+		STA		RB_Temp_LCD_buffer+1
+		LDX		#18d
+		SED
+		CLC
+?L_ADD_18times:			;*18
+		LDA		RB_LCD_F_Temp_L
+		ADC		RB_Temp_LCD_buffer
+		STA		RB_LCD_F_Temp_L
+		LDA		RB_LCD_F_Temp_M
+		ADC		RB_Temp_LCD_buffer+1
+		STA		RB_LCD_F_Temp_M
+		LDA		RB_LCD_F_Temp_H
+		ADC		#00h
+		STA		RB_LCD_F_Temp_H
+		DEX
+		BNE		?L_ADD_18times
+		LDA		RW_LastTem+1
+		AND		#80h
+		BNE		?L_NEG_
+		CLC
+?L_ADD_3200:
+		LDA		RB_LCD_F_Temp_M
+		ADC		#32h
+		STA		RB_LCD_F_Temp_M
+		LDA		RB_LCD_F_Temp_H
+		ADC		#00h
+		STA		RB_LCD_F_Temp_H
+		CLD
+		BEQ		?L_Data_change
+		BNE		?L_Data_change
+?L_NEG_:	
+		SEC
+?L_3200_SBC:
+		LDA		RB_LCD_F_Temp_M
+		CMP		#32h
+		BEQ		?L_Check_L
+		BCS		?L_M_dayu_32;;;;;M-32
+		BCC		?L_M_Xyu_32	;;;;;32-M
+	
+?L_Check_L:
+		LDA		RB_LCD_F_Temp_L
+		BEQ		?L_M_dayu_32
+		BNE		?L_M_dayu_32
+?L_M_dayu_32:
+		LDA		#11h				;TEMP  -
+		JSR		F_DispFlag
+		SEC
+		LDA		RB_LCD_F_Temp_M
+		SBC		#32h
+		STA		RB_LCD_F_Temp_M
+		JMP		?L_Data_change
+?L_M_Xyu_32:
+
+		SEC
+		LDA		#00H
+		SBC		RB_LCD_F_Temp_L
+		STA		RB_LCD_F_Temp_L
+		LDA		#32H
+		SBC		RB_LCD_F_Temp_M
+		STA		RB_LCD_F_Temp_M
+?L_Data_change:
+		CLD
+		LDA		RB_LCD_F_Temp_L
+		ROR		A
+		ROR		A
+		ROR		A
+		ROR		A
+		AND		#0FH
+		STA		RB_Temp_LCD_buffer
+		LDA		RB_LCD_F_Temp_M
+		AND		#F0H
+		BEQ		?L_A0H
+		LDA		RB_LCD_F_Temp_M
+		STA		RB_Temp_LCD_buffer+1
+		JMP		?L_Check_H
+?L_A0H:
+		LDA		RB_LCD_F_Temp_M
+		ORA		#A0H
+		STA		RB_Temp_LCD_buffer+1
+		
+?L_Check_H:
+		LDA		RB_LCD_F_Temp_H
+		BNE		?L_1
+		
+		LDA		#1Fh				;TEMP  |
+		JSR		F_NotDispFlag
+
+		JMP		?L_Show_temp
+?L_1:
+		LDA		#1Fh				;TEMP  |
+		JSR		F_DispFlag
+		JMP		?L_Show_temp
+;=================temp end==========================================		
+		
+		
+;====data==============
+F_SWatch_Modul:
+;mabn
+		LDA		R_LCDSecBuff
+		STA		R_MathTemp
+		JSR		F_SwatchDispFlag
+		DEC		R_MathTemp
+		LDA		R_MathTemp
+		CMP		#3ch
+		BCC		?L_Show_sw_lcd
+?L_3BH:
+		LDA		#3BH
+?L_Show_sw_lcd:
+		JSR		F_SwatchNotDispFlag
+		
+		JSR		F_Time_FU_Modul
+		
+		RTS
+;============================================================================
+;Name:			F_DispTime
+;Purpose:		clear key  1500ms  display after key
+;Parameters:	None
+;Destroy:		A
+;Return:		
+;Stack depth:	
+;============================================================================	
+F_DispTime:
+		JSR		F_SWatch_Modul
+		JSR		F_DATA_Modul
+		JSR		F_Week_Modul
+		JSR		F_Time_VU_Modul
+		JSR		F_Alarm_Modul
+		JSR		F_ADC_Modul
+		JSR		F_Temp_Modul
+		RTS
+; ==============================================
+; Function	name: F_Fill_ALL_LCDDPRAM 
+; Purpose	    : show clock on lcd
+; Parameter		: 
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 3
+; =============================================	
+F_Fill_ALL_LCDDPRAM:
+_F_Fill_ALL_LCDDPRAM:
+		LDX		#00h
+?L_Clear_g:
+		STA		R_LcdBuff,X
+		INX
+		CPX		#C_LCDBUFFER_LENGTH
+		BCC		?L_Clear_g
+		JSR		F_Fill_LCDDPRAM
+		RTS
+;---------
+F_Clear_LCDBUFF_RAM:
+_F_Clear_LCDBUFF_RAM:
+		LDA		#00h
+		LDX		#00h
+?L_Clear_g:
+		STA		R_LcdBuff,X
+		INX
+		CPX		#C_LCDBUFFER_LENGTH
+		BCC		?L_Clear_g
+;		JSR		F_Fill_LCDDPRAM
+		RTS
+
+; ==============================================
+; MACRO		name: F_Hex_To_BCD 
+; Purpose	    : change hex to bcd
+; Parameter		: X
+; Return    	: A,R_DisplayBuf
+; Destroy	    : NONE
+; Stack depth	: NONE
+; =============================================
+F_Hex_To_BCD:
+_F_Hex_To_BCD:
+
+	LDA		#0
+	STA		R_MathTemp
+?LOOP0#:
+	TXA
+	CMP		#0AH
+	BCS		?DEC10#
+	CLC
+	ADC		R_MathTemp
+	STA		R_MathTemp
+	;TAX
+	RTS
+?DEC10#:
+	SBC		#0AH
+	TAX
+	LDA		#10H
+	CLC
+	ADC		R_MathTemp
+	STA		R_MathTemp
+	JMP		?LOOP0#
+?L_Hex_To_BCD_END#:
+	RTS	
+		
+		
+		
+		
+; ==============================================
+; Function	name: F_Disp_Digital 
+; Purpose	    : show digital 
+; Parameter		: A  display icon ,X  dispaly index
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; =============================================
+F_Disp_Digital:
+_F_Disp_Digital:
+		STY		R_Disp_Index
+		LDX		R_Disp_Index
+		STA		R_Disp_Temp
+		AND		#0Fh
+		JSR		F_DispTheSevenSegChar
+		LDA		R_Disp_Temp
+		AND		#F0h
+		CLC
+		ROR		A
+		ROR		A
+		ROR		A
+		ROR		A
+		DEC		R_Disp_Index
+		LDX		R_Disp_Index
+		JSR		F_DispTheSevenSegChar
+		JMP		F_Fill_LCDDPRAM
+
+;========================================================
+;////////////////////////////////////////////////////////
+; not use in this demo
+;=================
+;T_LCDMatrixMapTab:
+;		DB	R_LcdBuff+0,R_LcdBuff+1,0,0
+;		DB	R_LcdBuff+2,R_LcdBuff+3,0,0
+;		DB	R_LcdBuff+4,R_LcdBuff+5,0,0
+;		DB	R_LcdBuff+6,R_LcdBuff+7,0,0
+;A:char. X:pos index
+; ==============================================
+; Function	name: F_DispTheSevenSegChar 
+; Purpose	    : show SevenSegChar 
+; Parameter		: A,X
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; ==============================================
+F_DispTheSevenSegChar:
+		STX		R_Temp1
+		TAX 	
+		LDA		T_SevenSegCharBitMapTab,X
+		LDX		R_Temp1
+		STA		R_Temp1								;R_Temp1存放字符的位映射 将刚刚找出的7段码放置在这里
+		TXA 	
+		CLC 	
+		ROL		A
+		TAX 	
+		LDA		T_SevenSegCharPosIndexTab,X
+		STA		R_Temp3
+		LDA		T_SevenSegCharPosIndexTab+1,X	;取字符的显示映射表的地址
+		STA		R_Temp4
+;------
+;dot start addr:R_Temp3,R_Temp4. disp byte:R_Temp1.
+; ==============================================
+; Function	name: F_DispByte 
+; Purpose	    : show Byte R_Temp1中要显示的数进行七段码点亮处理
+; Parameter		: A,X
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; ==============================================
+F_DispByte:
+		LDX		#00H
+		LDA		(R_Temp3,X)
+		BMI		L_Not_show_0
+;		BPL		?L_Sta_temp2
+;?L_Not_show:
+;		LDA		#3FH
+;		STA		R_Temp1
+;?L_No_FLAG:
+;		LDA		R_Temp1
+;		CMP		#3fh
+;		BNE		?L_Not_show_0
+;		LDA		#00h
+;		STA		R_Temp1
+;?L_Not_show_0:
+;		LDX		#00H
+;		LDA		(R_Temp3,X)
+?L_Sta_temp2:
+		AND		#07h
+		STA		R_Temp2
+		
+		
+ 		INC		R_Temp3
+		BNE		L_DispByte_1
+		INC		R_Temp4
+L_DispByte_1:
+		LDX		#00H
+		LDA		(R_Temp3,X)
+		STA		R_Temp0
+ 		INC		R_Temp3
+		BNE		L_DispByte_1_0
+		INC		R_Temp4
+L_DispByte_1_0:
+		LDA		(R_Temp3,X)
+		INC		R_Temp3
+		BNE		L_DispByte_1_1
+		INC		R_Temp4
+L_DispByte_1_1:
+		LDX		R_Temp0
+		ROR		R_Temp1
+		BCS		L_DispByte_1_1_1
+L_DispByte_1_1_0:
+		NOP
+		%F_ClearByteBit
+		DEC		R_Temp2
+		BNE		L_DispByte_1
+		RTS	
+L_DispByte_1_1_1:
+		%F_SetByteBit
+		DEC		R_Temp2
+		BNE		L_DispByte_1
+L_Not_show_0:
+		RTS	
+;=============================
+;A:flag index
+; ==============================================
+; Function	name: F_DispFlag 
+; Purpose	    : show DOT
+; Parameter		: A,X
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; ==============================================
+F_DispFlag:
+_F_DispFlag:
+		CLC	
+		ROL		A
+		TAX	
+		LDA		T_FlagDotTab,X
+		STA		R_Temp0
+		LDA		T_FlagDotTab+1,X
+		LDX		R_Temp0
+		%F_SetByteBit
+		JMP		F_Fill_LCDDPRAM
+		
+		
+F_SwatchDispFlag:
+_F_SwatchDispFlag:
+		CLC	
+		ROL		A
+		TAX	
+		LDA		T_MnFlagDotTab,X
+		STA		R_Temp0
+		LDA		T_MnFlagDotTab+1,X
+		LDX		R_Temp0
+		%F_SetByteBit
+		JMP		F_Fill_LCDDPRAM
+;A:flag index
+; ==============================================
+; Function	name F_DispFlag 
+; Purpose	    : not show DOT
+; Parameter		: A,X
+; Return    	: 
+; Destroy	    : 
+; Stack depth	: 2
+; ==============================================
+F_NotDispFlag:
+_F_NotDispFlag:
+		CLC	
+		ROL		A
+		TAX	
+		LDA		T_FlagDotTab,X
+		STA		R_Temp0
+		LDA		T_FlagDotTab+1,X
+		LDX		R_Temp0
+		%F_ClearByteBit
+		JMP		F_Fill_LCDDPRAM
+F_SwatchNotDispFlag:
+_F_SwatchNotDispFlag:
+		CLC	
+		ROL		A
+		TAX	
+		LDA		T_MnFlagDotTab,X
+		STA		R_Temp0
+		LDA		T_MnFlagDotTab+1,X
+		LDX		R_Temp0
+		%F_ClearByteBit
+		JMP		F_Fill_LCDDPRAM
+;A:flag index
+; ============================
+; when seg>=8 com+8 for GPL08A use only 
+; format:byte addr,Byte bit
+; ============================
+T_FlagDotTab:
+		DB	C_Com4MinByteNum+2,C_Seg20		;SUN		;0
+		DB	C_Com4MinByteNum+2,C_Seg18		;MON		;1
+		DB	C_Com4MinByteNum+2,C_Seg16		;TUE		;2
+		DB	C_Com4MinByteNum+1,C_Seg14		;WED		;3
+		DB	C_Com4MinByteNum+2,C_Seg23		;THU		;4
+		DB	C_Com4MinByteNum+3,C_Seg25		;FRI		;5
+		DB	C_Com4MinByteNum+3,C_Seg28		;SAT		;6
+		
+		DB	C_Com0MinByteNum+1,C_Seg8		;AM VU			;7
+		DB	C_Com1MinByteNum+1,C_Seg9		;PM vu			;8
+		DB	C_Com4MinByteNum+0,C_Seg3		;zz				;9
+		DB	C_Com0MinByteNum+0,C_Seg3		;col vu			;a
+		
+		
+		DB	C_Com0MinByteNum+0,C_Seg7		;H1				;b
+		DB	C_Com0MinByteNum+0,C_Seg5		;H2				;c
+		DB	C_Com4MinByteNum+0,C_Seg5		;H3				;d
+		
+		DB	C_Com4MinByteNum+0,C_Seg7		;MULE			;e
+		
+		DB	C_Com0MinByteNum+1,C_Seg13		;ALARM				;f
+		DB	C_Com4MinByteNum+1,C_Seg12		;DAY				;10
+		DB	C_Com2MinByteNum+1,C_Seg12		;temp -				;11
+		
+		
+		
+		
+		DB	C_Com0MinByteNum+5,C_Seg43		;col fu				;12
+		
+		DB	C_Com1MinByteNum+3,C_Seg26		;temp dot			;13
+		
+		DB	C_Com4MinByteNum+3,C_Seg30		;M/D			;14
+		
+		
+		DB	C_Com0MinByteNum+2,C_Seg16		;alarm col			;15
+		
+		DB	C_Com4MinByteNum+3,C_Seg26		;`f/`c gs			;16
+		DB	C_Com3MinByteNum+3,C_Seg26		;`f					;17
+		DB	C_Com2MinByteNum+3,C_Seg26		;`c					;18
+		
+		DB	C_Com0MinByteNum+3,C_Seg29		;yt |			;19
+		
+		DB	C_Com0MinByteNum+1,C_Seg10		;G1				;1a
+		DB	C_Com0MinByteNum+3,C_Seg31		;G2				;1b
+		DB	C_Com0MinByteNum+4,C_Seg32		;G3				;1c
+		DB	C_Com4MinByteNum+4,C_Seg32		;G4				;1d
+		
+		
+		DB	C_Com1MinByteNum+1,C_Seg12		;temp flag			;1e
+		DB	C_Com3MinByteNum+1,C_Seg12		;temp |				;1f
+		DB	C_Com0MinByteNum+2,C_Seg21		;alamr a			;20
+		DB	C_Com0MinByteNum+2,C_Seg22		;alarm p			;21
+T_FlagDotTabEnd:
+;-------------------秒----------------------------
+T_MnFlagDotTab:
+		DB	C_Com0MinByteNum+5,C_Seg40		;0		;0
+			
+		DB	C_Com4MinByteNum+4,C_Seg39		;1		;1
+		DB	C_Com3MinByteNum+4,C_Seg39		;2		;2
+		DB	C_Com2MinByteNum+4,C_Seg39		;3		;3
+		DB	C_Com1MinByteNum+4,C_Seg39		;4		;4
+		
+		DB	C_Com0MinByteNum+4,C_Seg39		;5		;5
+		
+		DB	C_Com4MinByteNum+4,C_Seg38		;6		;6
+		DB	C_Com3MinByteNum+4,C_Seg38		;7		;7
+		DB	C_Com2MinByteNum+4,C_Seg38		;8		;8
+		DB	C_Com1MinByteNum+4,C_Seg38		;9		;9
+		
+		DB	C_Com0MinByteNum+4,C_Seg38		;10		;a
+		
+		DB	C_Com4MinByteNum+4,C_Seg37		;11		;b
+		DB	C_Com3MinByteNum+4,C_Seg37		;12		;c
+		DB	C_Com2MinByteNum+4,C_Seg37		;13		;d
+		DB	C_Com1MinByteNum+4,C_Seg37		;14		;e
+
+		DB	C_Com0MinByteNum+4,C_Seg37		;15		;f
+		
+		DB	C_Com4MinByteNum+4,C_Seg36		;16		;10
+		DB	C_Com3MinByteNum+4,C_Seg36		;17		;11
+		DB	C_Com2MinByteNum+4,C_Seg36		;18		;12
+		DB	C_Com1MinByteNum+4,C_Seg36		;19		;13
+
+		DB	C_Com0MinByteNum+4,C_Seg36		;20		;14
+		
+		DB	C_Com4MinByteNum+4,C_Seg35		;21		;15
+		DB	C_Com3MinByteNum+4,C_Seg35		;22		;16
+		DB	C_Com2MinByteNum+4,C_Seg35		;23		;17
+		DB	C_Com1MinByteNum+4,C_Seg35		;24		;18
+
+		DB	C_Com0MinByteNum+4,C_Seg35		;25		;19
+		
+		DB	C_Com4MinByteNum+4,C_Seg34		;26		;1a
+		DB	C_Com3MinByteNum+4,C_Seg34		;27		;1b
+		DB	C_Com2MinByteNum+4,C_Seg34		;28		;1c
+		DB	C_Com1MinByteNum+4,C_Seg34		;29		;1d
+
+		DB	C_Com0MinByteNum+4,C_Seg34		;30		;1e
+		
+		DB	C_Com4MinByteNum+4,C_Seg33		;31		;1f
+		DB	C_Com3MinByteNum+4,C_Seg33		;32		;20
+		DB	C_Com2MinByteNum+4,C_Seg33		;33		;21
+		DB	C_Com1MinByteNum+4,C_Seg33		;34		;22
+		
+		DB	C_Com0MinByteNum+4,C_Seg33		;35		;23
+		
+		DB	C_Com4MinByteNum+0,C_Seg2		;36		;24
+		DB	C_Com3MinByteNum+0,C_Seg2		;37		;25
+		DB	C_Com2MinByteNum+0,C_Seg2		;38		;26
+		DB	C_Com1MinByteNum+0,C_Seg2		;39		;27
+		
+		DB	C_Com0MinByteNum+0,C_Seg2		;40		;28
+		
+		DB	C_Com4MinByteNum+0,C_Seg1		;41		;29
+		DB	C_Com3MinByteNum+0,C_Seg1		;42		;2a
+		DB	C_Com2MinByteNum+0,C_Seg1		;43		;2b
+		DB	C_Com1MinByteNum+0,C_Seg1		;44		;2c
+		
+		DB	C_Com0MinByteNum+0,C_Seg1		;45		;2d
+		
+		DB	C_Com4MinByteNum+0,C_Seg0		;46		;2e
+		DB	C_Com3MinByteNum+0,C_Seg0		;47		;2f
+		DB	C_Com2MinByteNum+0,C_Seg0		;48		;30
+		DB	C_Com1MinByteNum+0,C_Seg0		;49		;31
+		
+		DB	C_Com0MinByteNum+0,C_Seg0		;50		;32
+		
+		DB	C_Com1MinByteNum+5,C_Seg46		;51		;33
+		DB	C_Com1MinByteNum+5,C_Seg45		;52		;34
+		DB	C_Com1MinByteNum+5,C_Seg44		;53		;35
+		DB	C_Com1MinByteNum+5,C_Seg43		;54		;36
+		
+		DB	C_Com1MinByteNum+5,C_Seg41		;55		;37
+		
+		DB	C_Com4MinByteNum+5,C_Seg40		;56		;38
+		DB	C_Com3MinByteNum+5,C_Seg40		;57		;39
+		DB	C_Com2MinByteNum+5,C_Seg40		;58		;3a
+		DB	C_Com1MinByteNum+5,C_Seg40		;59		;3b
+T_MnFlagDotTab_Length:		.EQU	$-T_MnFlagDotTab		
+.ENDS
+
+;LCD_Probe_VEC:		.section
+;	.DB		14h
+;.ENDS

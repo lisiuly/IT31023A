@@ -1,0 +1,486 @@
+        Generalplus 6502 Assembler - Version 1.7.1.0  
+              Listing File Has Been Relocated
+
+     1 0000EDC0                     .CODE 
+     2                              
+     3 00000095                     Z_OLP: .SECTION ;main
+     4 00000095 00 00                ?ztmpblk: .BLKB 2
+     5 00000097                     Z_OLP_225: .SECTION ;powf
+     6 00000097 00 00 00 00          ?ztmpblk_225: .BLKB 4
+                           
+     7 00000097                     Z_OLP_236: .SECTION ;sinf
+     8 00000097 00 00 00 00          ?ztmpblk_236: .BLKB 4
+                           
+     9 00000097                     Z_OLP_237: .SECTION ;sinhf
+    10 00000097 00 00 00 00          ?ztmpblk_237: .BLKB 4
+                           
+    11 00000097                     Z_OLP_259: .SECTION ;tanf
+    12 00000097 00 00 00 00          ?ztmpblk_259: .BLKB 4
+                           
+    13 00000097                     Z_OLP_260: .SECTION ;tanhf
+    14 00000097 00 00 00 00          ?ztmpblk_260: .BLKB 8
+                00 00 00 00
+                           
+    15 00000097                     Z_OLP_262: .SECTION ;time
+    16 00000097 00 00 00 00          ?ztmpblk_262: .BLKB 6
+                00 00      
+    17 00000097                     Z_OLP_263: .SECTION ;vprintf
+    18 00000097 00 00                ?ztmpblk_263: .BLKB 2
+    19 00000097                     Z_OLP_73: .SECTION ;Sorting_Number_UART_c_static_342282
+    20 00000097 00 00 00 00          ?ztmpblk_73: .BLKB 4
+                           
+    21 0000009B                     Z_OLP_1: .SECTION ;AnnounceDateTime
+    22 0000009B 00 00                ?ztmpblk_1: .BLKB 2
+    23 0000009D                     Z_OLP_50: .SECTION ;F_Set_Date_UART_c_static_342282
+    24 0000009D 00 00                ?ztmpblk_50: .BLKB 2
+    25 0000009F                     Z_OLP_118: .SECTION ;__schar2fs
+    26 0000009F 00 00 00 00          ?ztmpblk_118: .BLKB 4
+                           
+    27 0000009F                     Z_OLP_121: .SECTION ;__uchar2fs
+    28 0000009F 00 00 00 00          ?ztmpblk_121: .BLKB 4
+                           
+    29 0000009F                     Z_OLP_122: .SECTION ;__uint2fs
+    30 0000009F 00 00 00 00          ?ztmpblk_122: .BLKB 4
+                           
+    31 0000009F                     Z_OLP_126: .SECTION ;_divsint
+    32 0000009F 00 00                ?ztmpblk_126: .BLKB 2
+    33 0000009F                     Z_OLP_127: .SECTION ;_divslong
+    34 0000009F 00 00 00 00          ?ztmpblk_127: .BLKB 4
+                           
+    35 0000009F                     Z_OLP_145: .SECTION ;_modslong
+    36 0000009F 00 00 00 00          ?ztmpblk_145: .BLKB 4
+                           
+    37 0000009F                     Z_OLP_168: .SECTION ;acosf
+    38 0000009F 00 00 00 00          ?ztmpblk_168: .BLKB 4
+                           
+    39 0000009F                     Z_OLP_171: .SECTION ;asinf
+    40 0000009F 00 00 00 00          ?ztmpblk_171: .BLKB 16
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                           
+    41 0000009F                     Z_OLP_172: .SECTION ;atan2f
+    42 0000009F 00 00 00 00          ?ztmpblk_172: .BLKB 12
+                00 00 00 00
+                00 00 00 00
+                           
+    43 0000009F                     Z_OLP_174: .SECTION ;atof
+    44 0000009F 00 00 00 00          ?ztmpblk_174: .BLKB 4
+                           
+    45 0000009F                     Z_OLP_179: .SECTION ;cosf
+    46 0000009F 00 00 00 00          ?ztmpblk_179: .BLKB 8
+                00 00 00 00
+                           
+    47 0000009F                     Z_OLP_180: .SECTION ;coshf
+    48 0000009F 00 00 00 00          ?ztmpblk_180: .BLKB 8
+                00 00 00 00
+                           
+    49 0000009F                     Z_OLP_181: .SECTION ;cotf
+    50 0000009F 00 00 00 00          ?ztmpblk_181: .BLKB 8
+                00 00 00 00
+                           
+    51 0000009F                     Z_OLP_182: .SECTION ;ctime
+    52 0000009F 00 00 00 00          ?ztmpblk_182: .BLKB 24
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                           
+    53 0000009F                     Z_OLP_190: .SECTION ;gets
+    54 0000009F 00                   ?ztmpblk_190: .BLKB 1
+    55 0000009F                     Z_OLP_208: .SECTION ;log10f
+    56 0000009F 00 00 00 00          ?ztmpblk_208: .BLKB 8
+                00 00 00 00
+                           
+    57 000002D8                     N_OLP: .SECTION ;main
+    58 000002D8 00 00 00 00          ?ntmpblk: .BLKB 8
+                00 00 00 00
+                           
+    59 000002E0                     N_OLP_213: .SECTION ;memchr
+    60 000002E0 00 00 00 00          ?ntmpblk_213: .BLKB 6
+                00 00      
+    61 000002E0                     N_OLP_214: .SECTION ;memcmp
+    62 000002E0 00 00 00 00          ?ntmpblk_214: .BLKB 6
+                00 00      
+    63 000002E0                     N_OLP_215: .SECTION ;memcpy
+    64 000002E0 00 00 00 00          ?ntmpblk_215: .BLKB 6
+                00 00      
+    65 000002E0                     N_OLP_216: .SECTION ;memicmp
+    66 000002E0 00 00 00 00          ?ntmpblk_216: .BLKB 6
+                00 00      
+    67 000002E0                     N_OLP_217: .SECTION ;memmove
+    68 000002E0 00 00 00 00          ?ntmpblk_217: .BLKB 6
+                00 00      
+    69 000002E0                     N_OLP_218: .SECTION ;memset
+    70 000002E0 00 00 00 00          ?ntmpblk_218: .BLKB 6
+                00 00      
+    71 000002E0                     N_OLP_220: .SECTION ;modff
+    72 000002E0 00 00 00 00          ?ntmpblk_220: .BLKB 6
+                00 00      
+    73 000002E0                     N_OLP_225: .SECTION ;powf
+    74 000002E0 00 00 00 00          ?ntmpblk_225: .BLKB 8
+                00 00 00 00
+                           
+    75 000002E0                     N_OLP_227: .SECTION ;printf_small
+    76 000002E0 00 00 00 00          ?ntmpblk_227: .BLKB 14
+                00 00 00 00
+                00 00 00 00
+                00 00      
+    77 000002E0                     N_OLP_232: .SECTION ;puts
+    78 000002E0 00 00 00 00          ?ntmpblk_232: .BLKB 4
+                           
+    79 000002E0                     N_OLP_236: .SECTION ;sinf
+    80 000002E0 00 00 00 00          ?ntmpblk_236: .BLKB 4
+                           
+    81 000002E0                     N_OLP_237: .SECTION ;sinhf
+    82 000002E0 00 00 00 00          ?ntmpblk_237: .BLKB 4
+                           
+    83 000002E0                     N_OLP_240: .SECTION ;srand
+    84 000002E0 00 00                ?ntmpblk_240: .BLKB 2
+    85 000002E0                     N_OLP_241: .SECTION ;strcat
+    86 000002E0 00 00 00 00          ?ntmpblk_241: .BLKB 4
+                           
+    87 000002E0                     N_OLP_242: .SECTION ;strchr
+    88 000002E0 00 00 00 00          ?ntmpblk_242: .BLKB 4
+                           
+    89 000002E0                     N_OLP_243: .SECTION ;strcmp
+    90 000002E0 00 00 00 00          ?ntmpblk_243: .BLKB 4
+                           
+    91 000002E0                     N_OLP_244: .SECTION ;strcpy
+    92 000002E0 00 00 00 00          ?ntmpblk_244: .BLKB 4
+                           
+    93 000002E0                     N_OLP_245: .SECTION ;strcspn
+    94 000002E0 00 00 00 00          ?ntmpblk_245: .BLKB 4
+                           
+    95 000002E0                     N_OLP_246: .SECTION ;stricmp
+    96 000002E0 00 00 00 00          ?ntmpblk_246: .BLKB 4
+                           
+    97 000002E0                     N_OLP_248: .SECTION ;strncat
+    98 000002E0 00 00 00 00          ?ntmpblk_248: .BLKB 6
+                00 00      
+    99 000002E0                     N_OLP_249: .SECTION ;strncmp
+   100 000002E0 00 00 00 00          ?ntmpblk_249: .BLKB 6
+                00 00      
+   101 000002E0                     N_OLP_251: .SECTION ;strnicmp
+   102 000002E0 00 00 00 00          ?ntmpblk_251: .BLKB 6
+                00 00      
+   103 000002E0                     N_OLP_253: .SECTION ;strrchr
+   104 000002E0 00 00 00 00          ?ntmpblk_253: .BLKB 4
+                           
+   105 000002E0                     N_OLP_255: .SECTION ;strstr
+   106 000002E0 00 00 00 00          ?ntmpblk_255: .BLKB 5
+                00         
+   107 000002E0                     N_OLP_256: .SECTION ;strtok
+   108 000002E0 00 00 00 00          ?ntmpblk_256: .BLKB 8
+                00 00 00 00
+                           
+   109 000002E0                     N_OLP_257: .SECTION ;strxfrm
+   110 000002E0 00 00 00 00          ?ntmpblk_257: .BLKB 12
+                00 00 00 00
+                00 00 00 00
+                           
+   111 000002E0                     N_OLP_259: .SECTION ;tanf
+   112 000002E0 00 00 00 00          ?ntmpblk_259: .BLKB 4
+                           
+   113 000002E0                     N_OLP_260: .SECTION ;tanhf
+   114 000002E0 00 00 00 00          ?ntmpblk_260: .BLKB 68
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                           
+   115 000002E0                     N_OLP_261: .SECTION ;tfp_printf
+   116 000002E0 00 00                ?ntmpblk_261: .BLKB 2
+   117 000002E0                     N_OLP_262: .SECTION ;time
+   118 000002E0 00 00 00 00          ?ntmpblk_262: .BLKB 38
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00      
+   119 000002E0                     N_OLP_263: .SECTION ;vprintf
+   120 000002E0 00 00 00 00          ?ntmpblk_263: .BLKB 4
+                           
+   121 000002E0                     N_OLP_264: .SECTION ;vsprintf
+   122 000002E0 00 00 00 00          ?ntmpblk_264: .BLKB 8
+                00 00 00 00
+                           
+   123 000002E0                     N_OLP_148: .SECTION ;_moduint
+   124 000002E0 00 00 00 00          ?ntmpblk_148: .BLKB 4
+                           
+   125 000002E4                     N_OLP_63: .SECTION ;PlaySequence
+   126 000002E4 00 00 00             ?ntmpblk_63: .BLKB 3
+   127 000002E7                     N_OLP_97: .SECTION ;Voice_SendPlayCmd
+   128 000002E7 00                   ?ntmpblk_97: .BLKB 1
+   129 000002E8                     N_OLP_95: .SECTION ;Voice_SendContinueCmd
+   130 000002E8 00 00 00 00          ?ntmpblk_95: .BLKB 4
+                           
+   131 000002EC                     N_OLP_72: .SECTION ;Sorting_Hour_UART_c_static_342282
+   132 000002EC 00 00 00 00          ?ntmpblk_72: .BLKB 4
+                           
+   133 000002F0                     N_OLP_73: .SECTION ;Sorting_Number_UART_c_static_342282
+   134 000002F0 00 00 00 00          ?ntmpblk_73: .BLKB 8
+                00 00 00 00
+                           
+   135 000002F8                     N_OLP_4: .SECTION ;Check_Time_ZD_UART_c_static_342282
+   136 000002F8 00 00 00 00          ?ntmpblk_4: .BLKB 4
+                           
+   137 000002FC                     N_OLP_69: .SECTION ;Send_Voice_Cmd_UART_c_static_342282
+   138 000002FC 00 00                ?ntmpblk_69: .BLKB 2
+   139 000002FE                     N_OLP_74: .SECTION ;UART_SendByte
+   140 000002FE 00                   ?ntmpblk_74: .BLKB 1
+   141 000002FF                     N_OLP_1: .SECTION ;AnnounceDateTime
+   142 000002FF 00 00 00 00          ?ntmpblk_1: .BLKB 9
+                00 00 00 00
+                00         
+   143 00000308                     N_OLP_13: .SECTION ;F_Alarm_Loop_UART_c_static_342282
+   144 00000308 00 00 00 00          ?ntmpblk_13: .BLKB 4
+                           
+   145 0000030C                     N_OLP_14: .SECTION ;F_Alarm_On_Off_UART_c_static_342282
+   146 0000030C 00 00                ?ntmpblk_14: .BLKB 2
+   147 0000030E                     N_OLP_23: .SECTION ;F_CountDown_Start_UART_c_static_342282
+   148 0000030E 00 00                ?ntmpblk_23: .BLKB 2
+   149 00000310                     N_OLP_49: .SECTION ;F_Set_Alarm_UART_c_static_342282
+   150 00000310 00 00                ?ntmpblk_49: .BLKB 2
+   151 00000312                     N_OLP_50: .SECTION ;F_Set_Date_UART_c_static_342282
+   152 00000312 00 00 00 00          ?ntmpblk_50: .BLKB 6
+                00 00      
+   153 00000318                     N_OLP_51: .SECTION ;F_Set_Time_UART_c_static_342282
+   154 00000318 00 00 00 00          ?ntmpblk_51: .BLKB 4
+                           
+   155 0000031C                     N_OLP_102: .SECTION ;__bgetc
+   156 0000031C 00 00 00             ?ntmpblk_102: .BLKB 3
+   157 0000031C                     N_OLP_103: .SECTION ;__fs2schar
+   158 0000031C 00 00 00 00          ?ntmpblk_103: .BLKB 4
+                           
+   159 0000031C                     N_OLP_106: .SECTION ;__fs2uchar
+   160 0000031C 00 00 00 00          ?ntmpblk_106: .BLKB 8
+                00 00 00 00
+                           
+   161 0000031C                     N_OLP_107: .SECTION ;__fs2uint
+   162 0000031C 00 00 00 00          ?ntmpblk_107: .BLKB 12
+                00 00 00 00
+                00 00 00 00
+                           
+   163 0000031C                     N_OLP_115: .SECTION ;__fsneq
+   164 0000031C 00 00 00 00          ?ntmpblk_115: .BLKB 16
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                           
+   165 0000031C                     N_OLP_118: .SECTION ;__schar2fs
+   166 0000031C 00 00 00 00          ?ntmpblk_118: .BLKB 5
+                00         
+   167 0000031C                     N_OLP_121: .SECTION ;__uchar2fs
+   168 0000031C 00                   ?ntmpblk_121: .BLKB 1
+   169 0000031C                     N_OLP_122: .SECTION ;__uint2fs
+   170 0000031C 00 00 00 00          ?ntmpblk_122: .BLKB 6
+                00 00      
+   171 0000031C                     N_OLP_124: .SECTION ;_assert
+   172 0000031C 00 00 00 00          ?ntmpblk_124: .BLKB 6
+                00 00      
+   173 0000031C                     N_OLP_125: .SECTION ;_divschar
+   174 0000031C 00 00                ?ntmpblk_125: .BLKB 2
+   175 0000031C                     N_OLP_126: .SECTION ;_divsint
+   176 0000031C 00 00 00 00          ?ntmpblk_126: .BLKB 4
+                           
+   177 0000031C                     N_OLP_127: .SECTION ;_divslong
+   178 0000031C 00 00 00 00          ?ntmpblk_127: .BLKB 12
+                00 00 00 00
+                00 00 00 00
+                           
+   179 0000031C                     N_OLP_128: .SECTION ;_divsuchar
+   180 0000031C 00 00                ?ntmpblk_128: .BLKB 2
+   181 0000031C                     N_OLP_129: .SECTION ;_divuchar
+   182 0000031C 00 00                ?ntmpblk_129: .BLKB 2
+   183 0000031C                     N_OLP_131: .SECTION ;_divuiucbase
+   184 0000031C 00 00                ?ntmpblk_131: .BLKB 2
+   185 0000031C                     N_OLP_133: .SECTION ;_divuschar
+   186 0000031C 00 00                ?ntmpblk_133: .BLKB 2
+   187 0000031C                     N_OLP_141: .SECTION ;_itoa
+   188 0000031C 00 00 00 00          ?ntmpblk_141: .BLKB 10
+                00 00 00 00
+                00 00      
+   189 0000031C                     N_OLP_143: .SECTION ;_modschar
+   190 0000031C 00 00                ?ntmpblk_143: .BLKB 2
+   191 0000031C                     N_OLP_145: .SECTION ;_modslong
+   192 0000031C 00 00 00 00          ?ntmpblk_145: .BLKB 12
+                00 00 00 00
+                00 00 00 00
+                           
+   193 0000031C                     N_OLP_146: .SECTION ;_modsuchar
+   194 0000031C 00 00                ?ntmpblk_146: .BLKB 2
+   195 0000031C                     N_OLP_147: .SECTION ;_moduchar
+   196 0000031C 00 00                ?ntmpblk_147: .BLKB 2
+   197 0000031C                     N_OLP_150: .SECTION ;_moduschar
+   198 0000031C 00 00                ?ntmpblk_150: .BLKB 2
+   199 0000031C                     N_OLP_153: .SECTION ;_mulschar
+   200 0000031C 00 00                ?ntmpblk_153: .BLKB 2
+   201 0000031C                     N_OLP_154: .SECTION ;_mulsuchar
+   202 0000031C 00 00                ?ntmpblk_154: .BLKB 2
+   203 0000031C                     N_OLP_155: .SECTION ;_muluchar
+   204 0000031C 00 00                ?ntmpblk_155: .BLKB 2
+   205 0000031C                     N_OLP_156: .SECTION ;_muluschar
+   206 0000031C 00 00                ?ntmpblk_156: .BLKB 2
+   207 0000031C                     N_OLP_159: .SECTION ;_sdivchar
+   208 0000031C 00 00                ?ntmpblk_159: .BLKB 2
+   209 0000031C                     N_OLP_160: .SECTION ;_sdivchar_1
+   210 0000031C 00 00                ?ntmpblk_160: .BLKB 2
+   211 0000031C                     N_OLP_161: .SECTION ;_smodchar
+   212 0000031C 00 00                ?ntmpblk_161: .BLKB 2
+   213 0000031C                     N_OLP_162: .SECTION ;_smodchar_1
+   214 0000031C 00 00                ?ntmpblk_162: .BLKB 2
+   215 0000031C                     N_OLP_163: .SECTION ;_smulchar
+   216 0000031C 00 00                ?ntmpblk_163: .BLKB 2
+   217 0000031C                     N_OLP_167: .SECTION ;abs
+   218 0000031C 00 00                ?ntmpblk_167: .BLKB 2
+   219 0000031C                     N_OLP_168: .SECTION ;acosf
+   220 0000031C 00 00 00 00          ?ntmpblk_168: .BLKB 4
+                           
+   221 0000031C                     N_OLP_171: .SECTION ;asinf
+   222 0000031C 00 00 00 00          ?ntmpblk_171: .BLKB 43
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00   
+   223 0000031C                     N_OLP_172: .SECTION ;atan2f
+   224 0000031C 00 00 00 00          ?ntmpblk_172: .BLKB 42
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00      
+   225 0000031C                     N_OLP_174: .SECTION ;atof
+   226 0000031C 00 00 00 00          ?ntmpblk_174: .BLKB 26
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00      
+   227 0000031C                     N_OLP_176: .SECTION ;atol
+   228 0000031C 00 00 00 00          ?ntmpblk_176: .BLKB 5
+                00         
+   229 0000031C                     N_OLP_178: .SECTION ;ceilf
+   230 0000031C 00 00 00 00          ?ntmpblk_178: .BLKB 4
+                           
+   231 0000031C                     N_OLP_179: .SECTION ;cosf
+   232 0000031C 00 00 00 00          ?ntmpblk_179: .BLKB 32
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                           
+   233 0000031C                     N_OLP_180: .SECTION ;coshf
+   234 0000031C 00 00 00 00          ?ntmpblk_180: .BLKB 22
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00      
+   235 0000031C                     N_OLP_181: .SECTION ;cotf
+   236 0000031C 00 00 00 00          ?ntmpblk_181: .BLKB 39
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00   
+   237 0000031C                     N_OLP_182: .SECTION ;ctime
+   238 0000031C 00 00 00 00          ?ntmpblk_182: .BLKB 36
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                           
+   239 0000031C                     N_OLP_184: .SECTION ;exit
+   240 0000031C 00 00                ?ntmpblk_184: .BLKB 2
+   241 0000031C                     N_OLP_187: .SECTION ;floorf
+   242 0000031C 00 00 00 00          ?ntmpblk_187: .BLKB 4
+                           
+   243 0000031C                     N_OLP_190: .SECTION ;gets
+   244 0000031C 00 00 00 00          ?ntmpblk_190: .BLKB 10
+                00 00 00 00
+                00 00      
+   245 0000031C                     N_OLP_192: .SECTION ;isalnum
+   246 0000031C 00                   ?ntmpblk_192: .BLKB 1
+   247 0000031C                     N_OLP_193: .SECTION ;isalpha
+   248 0000031C 00                   ?ntmpblk_193: .BLKB 1
+   249 0000031C                     N_OLP_194: .SECTION ;iscntrl
+   250 0000031C 00                   ?ntmpblk_194: .BLKB 1
+   251 0000031C                     N_OLP_195: .SECTION ;isdigit
+   252 0000031C 00                   ?ntmpblk_195: .BLKB 1
+   253 0000031C                     N_OLP_196: .SECTION ;isgraph
+   254 0000031C 00                   ?ntmpblk_196: .BLKB 1
+   255 0000031C                     N_OLP_197: .SECTION ;isinf
+   256 0000031C 00 00 00 00          ?ntmpblk_197: .BLKB 4
+                           
+   257 0000031C                     N_OLP_198: .SECTION ;islower
+   258 0000031C 00                   ?ntmpblk_198: .BLKB 1
+   259 0000031C                     N_OLP_199: .SECTION ;isnan
+   260 0000031C 00 00 00 00          ?ntmpblk_199: .BLKB 6
+                00 00      
+   261 0000031C                     N_OLP_200: .SECTION ;isprint
+   262 0000031C 00                   ?ntmpblk_200: .BLKB 1
+   263 0000031C                     N_OLP_201: .SECTION ;ispunct
+   264 0000031C 00                   ?ntmpblk_201: .BLKB 1
+   265 0000031C                     N_OLP_202: .SECTION ;isspace
+   266 0000031C 00                   ?ntmpblk_202: .BLKB 1
+   267 0000031C                     N_OLP_203: .SECTION ;isupper
+   268 0000031C 00                   ?ntmpblk_203: .BLKB 1
+   269 0000031C                     N_OLP_204: .SECTION ;isxdigit
+   270 0000031C 00                   ?ntmpblk_204: .BLKB 1
+   271 0000031C                     N_OLP_205: .SECTION ;labs
+   272 0000031C 00 00 00 00          ?ntmpblk_205: .BLKB 4
+                           
+   273 0000031C                     N_OLP_208: .SECTION ;log10f
+   274 0000031C 00 00 00 00          ?ntmpblk_208: .BLKB 38
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00 00 00
+                00 00      
+0 Error(s), 0 Warning(s).
+

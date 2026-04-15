@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/sa4/8bitLCD/!svn/ver/2889/GPL833FXX/Code/driver_library/GPL833FXX_UART_Driver_6502/UART
+END
+UART_Code.asm
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/sa4/8bitLCD/!svn/ver/2889/GPL833FXX/Code/driver_library/GPL833FXX_UART_Driver_6502/UART/UART_Code.asm
+END
+UART_Code.h
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/sa4/8bitLCD/!svn/ver/2889/GPL833FXX/Code/driver_library/GPL833FXX_UART_Driver_6502/UART/UART_Code.h
+END
+UART_Code.inc
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/sa4/8bitLCD/!svn/ver/2889/GPL833FXX/Code/driver_library/GPL833FXX_UART_Driver_6502/UART/UART_Code.inc
+END
