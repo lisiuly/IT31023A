@@ -20,6 +20,7 @@ extern	void	F_InitialKeyBorad(void);
 ////; Stack depth	: 2
 ////; =============================================
 //extern	void	F_InputProc(void);
+extern	void	F_KeepPA3InputPulldown(void);
 
 extern	void	F_KeyScan(void);
 extern	void	F_CodeSwitchScan(void);

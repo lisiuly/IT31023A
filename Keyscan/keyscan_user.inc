@@ -22,6 +22,8 @@
 ;; Stack depth		: none
 ;; ==============================================						
 ;.EXTERNAL			F_Operation_Count_Proc
+.EXTERN		_F_KeepPA3InputPulldown
+.EXTERN		F_KeepPA3InputPulldown
 .EXTERN		R_SleepTime
 .EXTERN		_R_SleepTime
 .EXTERN		R_SnoozeTime

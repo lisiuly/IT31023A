@@ -120,6 +120,7 @@ void PWM_Backlight_Init(void)
     // 1. 配置 PA1 为输出模式
     P_IO_PortA_Dir |= 0x02;      // PA1 方向输出
     P_IO_PortA_Data &= ~0x02;    // 确保 PA1 数据位为0，防止PWM极性反转
+	F_KeepPA3InputPulldown();
 
     // 2. 选择 PWMIO1 映射到 IOA1 (PA1)
     // P_PWMIO_Sel [3:2] = 01
@@ -182,6 +183,7 @@ void F_Backlight_Process(void)
         if (target_brightness > 0)
         {
             P_IO_PortA_Data &= ~(0x01 << 1);
+			F_KeepPA3InputPulldown();
             P_PWMIO_Ctrl |= D_PWMIO1En;  // 启用 PWM1
 
             	

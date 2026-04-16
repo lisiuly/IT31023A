@@ -21,6 +21,10 @@
 		</Breakpoint>
 		<Breakpoint>
 		</Breakpoint>
+		<Breakpoint>
+			ClassID="{4993C0DF-0FCE-4D4A-9C53-8119E029EA7B}"
+			Data="243338263136485742503130303B303B313B303B303B303B303B303B303B2E5C4B65797363616E5C4B65795363616E2E61736D3B3638323B303B3000"
+		</Breakpoint>
 	</Breakpoints>
 	<UI_CConfigPane>
 		SelPage="0"
@@ -121,7 +125,6 @@
 			Path=".\\system.c"
 			Path=".\\GPL815P.h"
 			Path=".\\calendar\\calendar.asm"
-			Path=".\\calendar\\calendar_user.inc"
 			Path=".\\Timer\\Timer.h"
 			Path=".\\Keyscan\\key_user.h"
 			Path=".\\System.h"
@@ -150,9 +153,10 @@
 			Path=".\\Keyscan\\keyscan_user.inc"
 			Path=".\\ADC\\ADC_user.inc"
 			Path=".\\UART\\UART.c"
-			Path=".\\Release\\IT31023A_Report.html"
 			Path=".\\main.c"
-			State="50,1956,1964"
+			Path=".\\Release\\IT31023A_Report.html"
+			Path=".\\calendar\\calendar_user.inc"
+			State="0,0,0"
 		</OpenFiles>
 		<OpenFolders>
 			<{573B84F6-3F64-4218-A5DC-6D7D42DAB8F0}>

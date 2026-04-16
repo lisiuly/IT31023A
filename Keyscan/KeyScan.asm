@@ -140,6 +140,8 @@ D_DOWN_key:				.EQU		0X02
 .PUBLIC		R_Uart_OpenTime
 .PUBLIC		R_VoiceReq
 .PUBLIC		_R_VoiceReq
+.PUBLIC		_F_KeepPA3InputPulldown
+.PUBLIC		F_KeepPA3InputPulldown
 ;==========================================
 ;Variable RAM declare area
 ;==========================================
@@ -707,11 +709,24 @@ _F_SystemPowerOff:
 		LDA	P_IO_PortA_Data
 		AND	#11111101B	; 拉低 PA1
 		STA	P_IO_PortA_Data
+		JSR	F_KeepPA3InputPulldown
 		
 		%bitr	R_OtherFlag,D_Alarming
 		; 关机时清除串口/语音打开标志，确保语音通道关闭
 		%bitr	R_OtherFlag,D_Urat_Open
 		%bitr	R_TimerFlag,(D_Timerstatus+D_Timerstatus_just)
+		RTS
+_F_KeepPA3InputPulldown:
+F_KeepPA3InputPulldown:
+		LDA	P_IO_PortA_Dir
+		AND	#11110111B
+		STA	P_IO_PortA_Dir
+		LDA	P_IO_PortA_Attrib
+		AND	#11110111B
+		STA	P_IO_PortA_Attrib
+		LDA	P_IO_PortA_Data
+		AND	#11110111B
+		STA	P_IO_PortA_Data
 		RTS
     
 ; 函数：Voice_PowerOn
@@ -723,6 +738,7 @@ _Voice_PowerOn:
     LDA     P_IO_PortA_Data
     AND     #11011111B            ; 清除 bit5
     STA     P_IO_PortA_Data
+	JSR		F_KeepPA3InputPulldown
     LDA     #0x64
     STA     R_DelayOpen
     LDA     R_VoiceFlag
@@ -746,6 +762,7 @@ _Voice_PowerOn_Noxiaonao:
     LDA     P_IO_PortA_Data
     AND     #11011111B            ; 清除 bit5
     STA     P_IO_PortA_Data
+	JSR		F_KeepPA3InputPulldown
     LDA     #0x64
     STA     R_DelayOpen
     LDA     R_VoiceFlag
@@ -1936,15 +1953,15 @@ T_key_Month_Table:
  _F_Charge:
  	 	 LDA 	 	 P_IO_PortA_Data 
  	 	 AND 	 	 #D_Bit3 
- 	 	 BNE 	 	 ?GetDC_Charge 	 
- ?NotDC_Charge: 	 	 	 	 	 	 ;未充电 
+	 	 BNE 	 	 ?GetDC_Charge 	 	 ; PA3=1 -> 有外电/充电中
+ ?NotDC_Charge: 	 	 	 	 	 	 ;PA3=0 -> 未充电 
 	 	 ; DC断开或无DC输入，确保清除充电与充满标志
 	 	 %bitr 	 R_Charge,D_Charge
 	 	 %bitr 	 R_Charge,D_Full
 	 	 %bits 	 R_KeyFlag,D_UpdateBAT
 	 	 RTS
  	 	 
- ?GetDC_Charge: 	 	 	 	 	 	 ;在充电 
+ ?GetDC_Charge: 	 	 	 	 	 	 ;PA3=1 -> 在充电 
  	 	 LDA 	 	 R_Charge 
  	 	 AND 	 	 #D_Charge 
  	 	 BNE 	 	 ?JudgeChargeFull 	 ;在充电的时候判断是否充满 

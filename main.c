@@ -43,6 +43,7 @@ static unsigned char g_low_power_flow = LOW_POWER_FLOW_IDLE;
 static unsigned int g_low_power_query_ticks = 0;
 static unsigned char g_low_power_last_tick = 0;
 static unsigned char g_recheck_battery_after_power_on = 0;
+static unsigned char g_wake_on_charge_after_low_power = 0;
 
 extern	unsigned char	R_Second_Temp;
 
@@ -57,6 +58,26 @@ static void F_ResetLowPowerFlow(void)
 	g_low_power_flow = LOW_POWER_FLOW_IDLE;
 	g_low_power_query_ticks = 0;
 	g_low_power_last_tick = RB_128hz_counter;
+}
+
+static void F_TryWakeFromCharge(void)
+{
+	if (!g_wake_on_charge_after_low_power)
+	{
+		return;
+	}
+
+	F_Charge();
+	if ((R_Charge & D_Charge) == 0)
+	{
+		return;
+	}
+
+	g_wake_on_charge_after_low_power = 0;
+	R_KeyFlag &= (unsigned char)(~D_LCDOFF);
+	F_LCD_Initinal();
+	Voice_PowerOn_Noxiaonao();
+	RB_Lcd_Updata_Flag |= D_LcdUpdate;
 }
 
 static void F_ProcessLowPowerShutdown(void)
@@ -134,6 +155,7 @@ static void F_ProcessLowPowerShutdown(void)
 		if (g_low_power_query_ticks >= LOW_POWER_SHUTDOWN_TICKS)
 		{
 			g_low_power_flow = LOW_POWER_FLOW_POWERED_OFF;
+			g_wake_on_charge_after_low_power = 1;
 			F_SystemPowerOff();
 		}
 		return;
@@ -189,6 +211,7 @@ void F_Cheak_VDC(void)
     if ((R_OtherFlag & (D_Alarming | D_Urat_Open | D_Timering)) == 0&& (R_DelayOpen == 0))
     {
         P_IO_PortA_Data |= 0x20;    // bit5 拉高：允许背光进入休眠暗光
+		F_KeepPA3InputPulldown();
         R_VoiceFlag = 0;
         CLOCK_FLAG_ASR = 0;	//语音标志位
     }
@@ -258,6 +281,7 @@ int main(void)
     PWM_Backlight_Init(); // 初始化PWM背光
 	/* 开机全显时强制唤醒背光：取消休眠暗光（清除 PA5），并设置为最高亮度 */
 	P_IO_PortA_Data &= ~0x20; /* PA5 = 0 -> 非休眠 */
+	F_KeepPA3InputPulldown();
 	R_BacklightLevel = 3;    /* 档位设为最大 */
 	PWM_SetBrightness(255);
 	R_CurrentBrightness = 255;
@@ -301,10 +325,18 @@ int main(void)
 			g_recheck_battery_after_power_on = 1;
 			F_ResetLowPowerFlow();
 			g_voice_play_status = PLAY_STATUS_STOPPED;
+			/* 电源键还在去抖或长按计时中时，先别睡，让 128Hz 继续推进按键状态机。 */
+			if ((R_KeyValue != 0) || (R_DebounceCnt != 0) || (R_LongKeyTime != 0))
+			{
+				F_SecondRTC();
+				nop_instruction();
+				continue;
+			}
 			/* 关机态进入休眠，由电源键或 2Hz 时基唤醒后再做最小处理。 */
 			F_SecondRTC();			
 			F_GreenMode();
 			F_Afterwakeup_Proc();
+			F_TryWakeFromCharge();
 			nop_instruction();
 			continue;
 		}
@@ -313,6 +345,7 @@ int main(void)
 		{
 			/* 开机后的第一次循环先清掉旧低电状态，再重新测一次电池。 */
 			g_recheck_battery_after_power_on = 0;
+			g_wake_on_charge_after_low_power = 0;
 			R_Charge &= ~D_LowPower;
 			F_ResetLowPowerFlow();
 			F_DC_Det();

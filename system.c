@@ -13,8 +13,20 @@
 #include "KEYSCAN\key_user.h"
 #include "Timer\Timer.h"
 #include "UART\UART_Rx.h"
+
+#define CHARGE_WAKEUP_MASK    0x08
+#define POWER_KEY_WAKEUP_MASK 0x40
+
 unsigned char R_Temp = 0;
 unsigned char R_Wakeup_Flag2 = 0;
+
+static void F_ConfigChargeDetectPulldown(void)
+{
+	P_IO_PortA_Dir &= (unsigned char)(~CHARGE_WAKEUP_MASK);
+	P_IO_PortA_Attrib &= (unsigned char)(~CHARGE_WAKEUP_MASK);
+	P_IO_PortA_Data &= (unsigned char)(~CHARGE_WAKEUP_MASK);
+}
+
 //=================================================
 void F_SYS_PowerOnCPUInitinal(void)
 {
@@ -158,11 +170,14 @@ void F_GreenMode(void)		//	;>>>Go to green mode into sleep
 // 		P_IO_PortA_Data = 0x00;
 		
 //=======Key change enable===========
+		F_ConfigChargeDetectPulldown();
+		P_IO_KeyChange_Ctrl1 = CHARGE_WAKEUP_MASK;
 		P_IO_PortB_Attrib = 0x00;
 		P_IO_PortB_Dir = 0x00;
-		P_IO_PortB_Data = 0x00;
+		P_IO_PortB_Data = 0x01;
 		
-		P_IO_KeyChange_Ctrl2 = 0x40;	// 仅允许 PB6 电源键唤醒，避免 PB0 充满检测误唤醒
+		P_IO_KeyChange_Ctrl2 = POWER_KEY_WAKEUP_MASK;	// 允许 PA3 外电检测和 PB6 电源键唤醒，避免 PB0 充满检测误唤醒
+		R_Temp = P_IO_PortA_Data;
 		R_Temp = P_IO_PortB_Data;
 //=========Enable TBL 2Hz,8HZ Wakeup	TMA======
 	   /* 睡眠前关掉相关io*/
@@ -329,12 +344,13 @@ void	F_InitPort(void)
 {	
 		P_IO_PortB_Attrib = 0x00;
 		P_IO_PortB_Dir = 0x00;
-		P_IO_PortB_Data = 0x00;
+		P_IO_PortB_Data = 0x01;
 		
 //=====wakeup io keep input pull ====================
 		P_IO_PortA_Dir = 0x22;
 		P_IO_PortA_Attrib = 0;
-		P_IO_PortA_Data = 0x20;		
+		P_IO_PortA_Data = 0x20;
+		F_ConfigChargeDetectPulldown();
 		
 		P_IO_PortC_Attrib = 0x00;
 		P_IO_PortC_Dir = 0x00;
