@@ -725,7 +725,7 @@ F_KeepPA3InputPulldown:
 		AND	#11110111B
 		STA	P_IO_PortA_Attrib
 		LDA	P_IO_PortA_Data
-		AND	#11110111B
+		AND	#11110101B	; 同时保持 PA1 数据锁存为 0，避免 PWM 极性被 PortA 读改写带反
 		STA	P_IO_PortA_Data
 		RTS
     

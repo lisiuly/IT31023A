@@ -284,6 +284,7 @@ int main(void)
 	F_KeepPA3InputPulldown();
 	R_BacklightLevel = 3;    /* 档位设为最大 */
 	PWM_SetBrightness(255);
+	P_PWMIO_Ctrl |= D_PWMIO1En;
 	R_CurrentBrightness = 255;
 //	F_RFCInit_Value();
 //	F_ADC_Init();

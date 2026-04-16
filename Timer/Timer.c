@@ -134,11 +134,11 @@ void PWM_Backlight_Init(void)
     // // 4. 初始化亮度为 100% (满占空比)
     // P_PWMIO_IO1_DUTY = 255;
 
-    // 5. 配置并启用 PWM
+    // 5. 先只配置 PWM 时钟，不立即使能输出
+    // 避免沿用旧 duty 导致首次输出出现反相/毛刺
     // CLKSEL [6:4] = 001 (System Clock / 8)
-    // PWMIO1_EN [1] = 1 (Enable)
     P_PWMIO_Ctrl &= 0x80; // 清除低7位 (保留Bit7 Reserved)
-    P_PWMIO_Ctrl |= (0x01 << 4) | (0x01 << 1); 
+    P_PWMIO_Ctrl |= (0x01 << 4);
 }
 
 /**
@@ -184,12 +184,13 @@ void F_Backlight_Process(void)
         {
             P_IO_PortA_Data &= ~(0x01 << 1);
 			F_KeepPA3InputPulldown();
-            P_PWMIO_Ctrl |= D_PWMIO1En;  // 启用 PWM1
-
-            	
+        }
+        PWM_SetBrightness(target_brightness);
+        if (target_brightness > 0)
+        {
+            P_PWMIO_Ctrl |= D_PWMIO1En;  // duty 就位后再启用 PWM1，避免首次反相
         }
         R_CurrentBrightness = target_brightness;
-        PWM_SetBrightness(target_brightness);
 //
 //        // 如果目标是关闭，则禁用PWM并拉低IO
 //        if (target_brightness == 0)
