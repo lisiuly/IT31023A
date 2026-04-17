@@ -37,6 +37,7 @@ D_DOWN_key:				.EQU		0X02
 .Include	GPL815P.inc
 .INCLUDE	lcd\lcd_user.inc
 .INCLUDE	calendar\calendar_user.inc
+.INCLUDE	ADC\ADC_user.inc
 .INCLUDE	SYS\Macro.inc
 ;.INCLUDE	GXHTV4\GXHTV4.inc
 ;.INCLUDE	I2c\D_I2C.inc
@@ -44,6 +45,8 @@ D_DOWN_key:				.EQU		0X02
 ; External declare area
 ;==========================================
 .EXTERNAL F_LCD_Initinal
+.EXTERNAL F_UART_Initial
+.EXTERNAL ADC_Init
 .EXTERNAL _R_BacklightFlag
 .EXTERNAL _R_BacklightLevel
 .EXTERNAL _R_CurrentBrightness
@@ -142,6 +145,8 @@ D_DOWN_key:				.EQU		0X02
 .PUBLIC		_R_VoiceReq
 .PUBLIC		_F_KeepPA3InputPulldown
 .PUBLIC		F_KeepPA3InputPulldown
+.PUBLIC		R_AlarmViewFlag
+.PUBLIC		_R_AlarmViewFlag
 ;==========================================
 ;Variable RAM declare area
 ;==========================================
@@ -171,8 +176,8 @@ R_KeyTemp			ds		1
 _R_KeyTemp:			equ	R_KeyTemp
 R_OldKeyValue		ds		1	;原来的键值
 _R_OldKeyValue:		equ	R_OldKeyValue
-D_AlarmKey		equ		0x10	;闹钟设置键减10
-D_TimerKey		equ	    0x08	;定时键加08
+D_AlarmKey		equ		0x08	;闹钟设置键
+D_TimerKey		equ	    0x10	;定时键加08
 D_UpKey			equ		0x04	;加键正倒计时04
 D_DownKey		equ		0x02	;减键闹钟02
 D_TimeKey		equ		0x20	;时间设置键
@@ -685,9 +690,33 @@ Enable_LongPowerKey:
 		%btst	R_KeyFlag,D_LCDOFF,?DoPowerOff
 		
 		; Power ON
+		; 关中断，避免 TBH ISR 在外设半初始化时打断
+	
+		; 重新打开 LCD 偏压、电荷泵、VLCD 和显示驱动
+		LDA	#00
+		STA	P_WDT_Clear
 		JSR	F_LCD_Initinal
-		JSR	Voice_PowerOn_Noxiaonao
-		%bits	RB_Lcd_Updata_Flag,D_LcdUpdate
+		LDA	#00
+		STA	P_WDT_Clear
+		JSR	ADC_Init
+		LDA	P_INT_Ctrl1
+		ORA	#D_TM0IntEn
+		STA	P_INT_Ctrl1
+		LDA	P_TIMER_EN
+		ORA	#D_TM0En
+		STA	P_TIMER_EN
+		LDA	#00
+		STA	P_WDT_Clear
+		SEI	
+		JSR	F_UART_Initial
+		LDA	#D_UARTReset+D_UARTEn+D_UARTRxIntEn
+		STA	P_UART_Ctrl1
+		LDA	P_UART_Data
+		LDA	#D_UARTStopBit1+D_UARTDataBit8
+		STA	P_UART_Ctrl2
+		; 开中断，恢复正常调度
+		CLI
+		JSR	Voice_PowerOn_Noxiaonao	
 		RTS
 		
 	?DoPowerOff:
@@ -700,7 +729,25 @@ _F_SystemPowerOff:
 		%bits	R_KeyFlag,D_LCDOFF
 		; Power OFF
 		LDA	#00
-		STA	P_LCD_Ctrl1	; Turn off LCD
+		STA	P_LCD_Ctrl1	; 先关显示驱动
+		STA	P_LCD_PUMP_Ctrl	; 关闭 LCD 电荷泵
+		STA	P_LCD_VLCD_Ctrl	; 关闭 VLCD
+		STA	P_LCD_BIAS_Ctrl	; 关闭偏压
+		STA	P_LCD_Ctrl2	; 清除 LCD 附加显示控制
+		STA	P_UART_Ctrl1	; 关闭 MCU 侧 UART
+		STA	P_UART_Ctrl2
+		STA	P_ADC_Ctrl1	; 关闭 ADC 模块
+		STA	P_ADC_Ctrl2
+		STA	P_ADC_VREF_Ctrl
+		LDA	P_INT_Ctrl1
+		AND	#11110111B	; 清除 TM0 中断使能
+		STA	P_INT_Ctrl1
+		LDA	P_TIMER_EN
+		AND	#11111110B	; 清除 TM0 使能
+		STA	P_TIMER_EN
+		LDA	P_IO_PortA_Data
+		ORA	#00100000B	; PA5 拉高，断开语音模块电源
+		STA	P_IO_PortA_Data
 			
 		; 关机时同时关闭背光：禁用PWM并拉低PA1，设置当前亮度为0
 		LDA	P_PWMIO_Ctrl
@@ -714,6 +761,9 @@ _F_SystemPowerOff:
 		%bitr	R_OtherFlag,D_Alarming
 		; 关机时清除串口/语音打开标志，确保语音通道关闭
 		%bitr	R_OtherFlag,D_Urat_Open
+		LDA	#00
+		STA	R_DelayOpen
+		STA	R_VoiceFlag
 		%bitr	R_TimerFlag,(D_Timerstatus+D_Timerstatus_just)
 		RTS
 _F_KeepPA3InputPulldown:
@@ -980,6 +1030,7 @@ Enable_TimerKey:	;暂停和开始计时键
 		%bits	 R_TimerFlag,D_Timerstatus
 			; 请求播放“开始计时”语音
 			LDA		R_VoiceReq
+			AND		#01FH
 			ORA		#D_VOICE_TIMER_START
 			STA		R_VoiceReq	
 				%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
@@ -989,6 +1040,7 @@ Enable_TimerKey:	;暂停和开始计时键
 		%bits	R_TimerFlag,D_Timerstatus_just
 				; 请求播放“开始计时”语音
 				LDA		R_VoiceReq
+				AND		#01FH
 				ORA		#D_VOICE_TIMER_START
 				STA		R_VoiceReq	
 					%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
@@ -998,6 +1050,7 @@ Enable_TimerKey:	;暂停和开始计时键
 		%bits	R_TimerFlag,D_Timerstatus
 			; 请求播放“继续计时”语音
 			LDA		R_VoiceReq
+			AND		#01FH
 			ORA		#D_VOICE_TIMER_CONTINUE
 			STA		R_VoiceReq
 			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
@@ -1010,6 +1063,7 @@ Enable_TimerKey:	;暂停和开始计时键
 ;  		STA	R_POINT 
 			; 请求播放“继续计时”语音
 			LDA		R_VoiceReq
+			AND		#01FH
 			ORA		#D_VOICE_TIMER_CONTINUE
 			STA		R_VoiceReq
 			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
@@ -1021,6 +1075,7 @@ Enable_TimerKey:	;暂停和开始计时键
 		%bits	R_TimerFlag,D_TimerPausedCountDown
 			; 请求播放“暂停计时”语音
 			LDA		R_VoiceReq
+			AND		#01FH
 			ORA		#D_VOICE_TIMER_PAUSE
 			STA		R_VoiceReq
 			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
@@ -1033,6 +1088,7 @@ Enable_TimerKey:	;暂停和开始计时键
 		%bits R_TimerFlag,D_Timerstatus_justpause
 			; 请求播放“暂停计时”语音
 			LDA		R_VoiceReq
+			AND		#01FH
 			ORA		#D_VOICE_TIMER_PAUSE
 			STA		R_VoiceReq
 			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	

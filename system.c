@@ -171,12 +171,12 @@ void F_GreenMode(void)		//	;>>>Go to green mode into sleep
 		
 //=======Key change enable===========
 		F_ConfigChargeDetectPulldown();
-		P_IO_KeyChange_Ctrl1 = CHARGE_WAKEUP_MASK;
+		P_IO_KeyChange_Ctrl1 = 0;
 		P_IO_PortB_Attrib = 0x00;
 		P_IO_PortB_Dir = 0x00;
 		P_IO_PortB_Data = 0x01;
 		
-		P_IO_KeyChange_Ctrl2 = POWER_KEY_WAKEUP_MASK;	// 允许 PA3 外电检测和 PB6 电源键唤醒，避免 PB0 充满检测误唤醒
+		P_IO_KeyChange_Ctrl2 = POWER_KEY_WAKEUP_MASK;	// 关机态仅保留 PB6 电源键唤醒
 		R_Temp = P_IO_PortA_Data;
 		R_Temp = P_IO_PortB_Data;
 //=========Enable TBL 2Hz,8HZ Wakeup	TMA======

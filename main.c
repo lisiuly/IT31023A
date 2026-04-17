@@ -43,7 +43,6 @@ static unsigned char g_low_power_flow = LOW_POWER_FLOW_IDLE;
 static unsigned int g_low_power_query_ticks = 0;
 static unsigned char g_low_power_last_tick = 0;
 static unsigned char g_recheck_battery_after_power_on = 0;
-static unsigned char g_wake_on_charge_after_low_power = 0;
 
 extern	unsigned char	R_Second_Temp;
 
@@ -58,26 +57,6 @@ static void F_ResetLowPowerFlow(void)
 	g_low_power_flow = LOW_POWER_FLOW_IDLE;
 	g_low_power_query_ticks = 0;
 	g_low_power_last_tick = RB_128hz_counter;
-}
-
-static void F_TryWakeFromCharge(void)
-{
-	if (!g_wake_on_charge_after_low_power)
-	{
-		return;
-	}
-
-	F_Charge();
-	if ((R_Charge & D_Charge) == 0)
-	{
-		return;
-	}
-
-	g_wake_on_charge_after_low_power = 0;
-	R_KeyFlag &= (unsigned char)(~D_LCDOFF);
-	F_LCD_Initinal();
-	Voice_PowerOn_Noxiaonao();
-	RB_Lcd_Updata_Flag |= D_LcdUpdate;
 }
 
 static void F_ProcessLowPowerShutdown(void)
@@ -155,7 +134,6 @@ static void F_ProcessLowPowerShutdown(void)
 		if (g_low_power_query_ticks >= LOW_POWER_SHUTDOWN_TICKS)
 		{
 			g_low_power_flow = LOW_POWER_FLOW_POWERED_OFF;
-			g_wake_on_charge_after_low_power = 1;
 			F_SystemPowerOff();
 		}
 		return;
@@ -256,6 +234,7 @@ void F_SecondRTC(void)
 				R_TimeFlashSet = 0;
 				R_AlmTimeFlashSet = 0;
 				R_TimerFlashSet	= 0;
+				R_AlarmViewFlag = 0;
 				RB_Lcd_Updata_Flag |= D_LcdUpdate;
 //					if(R_VolumeFlashSet != 0)
 //					{
@@ -275,7 +254,7 @@ int main(void)
 	F_InitDateTime();  // 初始化时间日期
 	F_SYS_PowerOnCPUInitinal();// CPU上电初始化
 	F_LVD_Init();		//低电初始化
-	F_LCD_Initinal();// ;LCD初始化
+	F_LCD_Initinal();// LCD完整上电初始化：打开偏压、电荷泵、VLCD和显示驱动
 	F_InitPort();// ;端口初始化
 
     ADC_Init();	    // 初始化 ADC 模块（PB7 模拟输入，参考电压 2.0V）
@@ -338,7 +317,6 @@ int main(void)
 			F_SecondRTC();			
 			F_GreenMode();
 			F_Afterwakeup_Proc();
-			F_TryWakeFromCharge();
 			nop_instruction();
 			continue;
 		}
@@ -347,7 +325,6 @@ int main(void)
 		{
 			/* 开机后的第一次循环先清掉旧低电状态，再重新测一次电池。 */
 			g_recheck_battery_after_power_on = 0;
-			g_wake_on_charge_after_low_power = 0;
 			R_Charge &= ~D_LowPower;
 			F_ResetLowPowerFlow();
 			F_DC_Det();
@@ -402,15 +379,19 @@ int main(void)
 					Play_SetTimeVoice_FromKey();
 				}
 			}
-			if (req & D_VOICE_TIMER_START) {
-				unsigned char seq1[2] = {KaiQi_SP, JiShi_SP};
-				PlaySequence(2, seq1);	}
-			if (req & D_VOICE_TIMER_PAUSE) {
-				unsigned char seq1[2] = {ZanTing_SP, JiShi_SP};
-				PlaySequence(2, seq1);	}
-			if (req & D_VOICE_TIMER_CONTINUE) {
-				unsigned char seq1[2] = {JiXu_SP, JiShi_SP};
-				PlaySequence(2, seq1);	}
+			if (req & (D_VOICE_TIMER_START | D_VOICE_TIMER_PAUSE | D_VOICE_TIMER_CONTINUE)) {
+				Voice_SendStopControlCmd();
+				if (req & D_VOICE_TIMER_CONTINUE) {
+					unsigned char seq1[2] = {JiXu_SP, JiShi_SP};
+					PlaySequence(2, seq1);
+				} else if (req & D_VOICE_TIMER_PAUSE) {
+					unsigned char seq1[2] = {ZanTing_SP, JiShi_SP};
+					PlaySequence(2, seq1);
+				} else {
+					unsigned char seq1[2] = {KaiQi_SP, JiShi_SP};
+					PlaySequence(2, seq1);
+				}
+			}
 		}
 		
 	//    // 进入睡眠前的判断条件

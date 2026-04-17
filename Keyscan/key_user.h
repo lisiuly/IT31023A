@@ -118,6 +118,7 @@ extern	unsigned char	R_DelayOpen;
 extern	void	Voice_PowerOn(void);
 extern	void	F_SystemPowerOff(void);
 extern unsigned char R_VoiceReq;
+extern unsigned char R_AlarmViewFlag;
 extern	void	Voice_PowerOn_Noxiaonao(void);
 /* R_VoiceReq 位：由汇编设置，主循环处理 */
 #define D_VOICE_ALARM_CHECK  0x01

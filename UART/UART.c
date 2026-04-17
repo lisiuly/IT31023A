@@ -401,7 +401,7 @@ static void F_Set_Alarm(void)
         R_AlarmMinute[alarm_index] = UART_RxBuffer[6];      
         // 设置当前组别
         R_CurrentGroup = alarm_index;
-//        R_Uart_UI = 10;
+        R_Uart_UI = 10;
 //  		RB_Lcd_Updata_Flag |= D_LcdUpdate;   
   		Set_UartUI_And_LcdUpdateFlag();  
   		
@@ -680,12 +680,11 @@ static void F_Alarm_On_Off(void)
 		Voice_SendModeCmd(PLAY_MODE_ONCE);
 	 Voice_SendContinueCmd(SpCnt, Spindex);
     // 更新UI
-//    R_Uart_UI = D_UI_Time;
-//    RB_Lcd_Updata_Flag |= D_LcdUpdate;
+	 R_Uart_UI = 10;
    Set_UartUI_And_LcdUpdateFlag();  
 	if (is_alarm_close) {
 		RB_Lcd_Updata_Flag |= D_LcdChangeUpdate;
-		R_Uart_UI = 5;
+	
 	}
 }
 
@@ -1501,7 +1500,7 @@ static void F_OnVoicePlayStatus(void)
 void Set_UartUI_And_LcdUpdateFlag(void)
 {
     // 1. 设置串口 UI 值，保持当前界面不被自动切换
-    R_Uart_UI = 10;
+   // R_Uart_UI = 10;
     R_Uart_OpenTime = D_UI_Time;
     // 2. 置位 LCD 更新标志位（不影响其他位）
 	RB_Lcd_Updata_Flag &= ~D_LcdChangeUpdate;
