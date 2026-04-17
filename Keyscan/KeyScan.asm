@@ -171,10 +171,10 @@ R_KeyTemp			ds		1
 _R_KeyTemp:			equ	R_KeyTemp
 R_OldKeyValue		ds		1	;原来的键值
 _R_OldKeyValue:		equ	R_OldKeyValue
-D_AlarmKey		equ		0x02	;闹钟设置键
-D_TimerKey		equ	    0x04	;定时键
-D_UpKey			equ		0x08	;加键
-D_DownKey		equ		0x10	;减键
+D_AlarmKey		equ		0x10	;闹钟设置键减10
+D_TimerKey		equ	    0x08	;定时键加08
+D_UpKey			equ		0x04	;加键正倒计时04
+D_DownKey		equ		0x02	;减键闹钟02
 D_TimeKey		equ		0x20	;时间设置键
 D_PowerKey		equ		0x40		
 

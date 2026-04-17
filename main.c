@@ -236,6 +236,7 @@ void F_SecondRTC(void)
 		}
 			if (R_Uart_UI == 0)
 			{
+			RB_Lcd_Updata_Flag &= ~D_LcdChangeUpdate;
 			RB_Lcd_Updata_Flag |= D_LcdUpdate;	
 				}		
 				// 处理串口打开时间

@@ -401,7 +401,7 @@ static void F_Set_Alarm(void)
         R_AlarmMinute[alarm_index] = UART_RxBuffer[6];      
         // 设置当前组别
         R_CurrentGroup = alarm_index;
-        R_Uart_UI = 10;
+//        R_Uart_UI = 10;
 //  		RB_Lcd_Updata_Flag |= D_LcdUpdate;   
   		Set_UartUI_And_LcdUpdateFlag();  
   		
@@ -634,6 +634,8 @@ static void F_Alarm_On_Off(void)
 {
     unsigned char selector = (UART_RxBuffer[4] >> 4) & 0x0F;  // 高4位
     unsigned char state = UART_RxBuffer[4] & 0x0F;            // 低4位
+	unsigned char is_alarm_close = 0;
+	unsigned char alarm_mask = 0;
     
     // 处理所有闹钟
     if (selector == 0x0F) {
@@ -646,6 +648,7 @@ static void F_Alarm_On_Off(void)
         } else {  // 关闭
             Spindex[index++] = GuanBi_SP;
             R_AlarmOnOff = 0x00;  // 0000 0000
+			is_alarm_close = 1;
         }
     }
     // 处理单个闹钟
@@ -653,12 +656,14 @@ static void F_Alarm_On_Off(void)
         Spindex[index++] = NaoZhong_SP;
         Spindex[index++] = NumStart_Sp + selector;
         R_CurrentGroup = selector - 1;  // 将selector
+		alarm_mask = (1 << (selector - 1));
         if (state & 0x01) {  // 打开
             Spindex[index++] = DaKai_SP;
-            R_AlarmOnOff |= (1 << (selector - 1));
+			R_AlarmOnOff |= alarm_mask;
         } else {  // 关闭
             Spindex[index++] = GuanBi_SP;
-            R_AlarmOnOff &= ~(1 << (selector - 1));
+			R_AlarmOnOff &= (unsigned char)(~alarm_mask);
+			is_alarm_close = 1;
         }
     }
     // 错误处理
@@ -672,11 +677,16 @@ static void F_Alarm_On_Off(void)
     }
         SpCnt = index;
         PlayList = 1;    
-     Voice_SendContinueCmd(SpCnt, Spindex);
+		Voice_SendModeCmd(PLAY_MODE_ONCE);
+	 Voice_SendContinueCmd(SpCnt, Spindex);
     // 更新UI
 //    R_Uart_UI = D_UI_Time;
 //    RB_Lcd_Updata_Flag |= D_LcdUpdate;
    Set_UartUI_And_LcdUpdateFlag();  
+	if (is_alarm_close) {
+		RB_Lcd_Updata_Flag |= D_LcdChangeUpdate;
+		R_Uart_UI = 5;
+	}
 }
 
 /*
@@ -1483,17 +1493,18 @@ static void F_OnVoicePlayStatus(void)
 /**
  * @brief  设置串口UI值并置位LCD更新标志位
  * @note   核心操作：
- *         1. 将D_UI_Time赋值给R_Uart_UI
+ *         1. 将10赋值给R_Uart_UI
  *         2. 置位RB_Lcd_Updata_Flag中的D_LcdUpdate位
  * @param  无（若需动态传值可扩展参数，见下方说明）
  * @retval 无
  */
 void Set_UartUI_And_LcdUpdateFlag(void)
 {
-    // 1. 设置串口UI值
-	 //   R_Uart_UI = 10;	//改为 65，比默认的 D_UI_Time (60) 大 5
-      R_Uart_OpenTime = D_UI_Time;
-    // 2. 置位LCD更新标志位（不影响其他位）
+    // 1. 设置串口 UI 值，保持当前界面不被自动切换
+    R_Uart_UI = 10;
+    R_Uart_OpenTime = D_UI_Time;
+    // 2. 置位 LCD 更新标志位（不影响其他位）
+	RB_Lcd_Updata_Flag &= ~D_LcdChangeUpdate;
     RB_Lcd_Updata_Flag |= D_LcdUpdate;
 }
 

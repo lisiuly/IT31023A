@@ -1023,9 +1023,12 @@ F_Alarm_Modul:
 		AND		#0x02			; Group 1 (Bit 1)
 	?CheckResult:
 		BNE		?L_ShowAlarmTime
+		LDA		RB_Lcd_Updata_Flag
+		AND		#D_LcdChangeUpdate
+		BNE		?L_HideAlarmTime
 		LDA		R_Uart_UI
 		BNE		?L_ShowAlarmTime
-		
+	?L_HideAlarmTime:
 		; Alarm is OFF - hide time (show 4 dashes or nothing)
 		LDA		#0xAA        ; Nothing
 		LDY		#05h
