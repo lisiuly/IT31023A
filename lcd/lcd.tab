@@ -6,7 +6,7 @@ C_Com2MinByteNum:	.EQU	12			;com2
 C_Com3MinByteNum:	.EQU	18			;com3
 C_Com4MinByteNum:	.EQU	24			;com4
 C_Com5MinByteNum:	.EQU	30			;com5
-lcd				equ	0   ;1为调试，0为实际的seg
+lcd				equ	0  ;1为调试，0为实际的seg
 .IF	lcd
 ;$2000-------------------------------------
 C_Seg00:		.EQU	10000000B			;seg0

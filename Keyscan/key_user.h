@@ -79,6 +79,7 @@ extern unsigned char	R_TimerFlag;
 #define	D_TimerSetstatus		0x08
 #define	D_Timerstatus_justpause	0x10
 #define D_TimerPausedCountDown	0x20
+#define D_TimerModeCountdown	0x40
 extern unsigned char	R_SetBack;
 extern unsigned char	R_TimeFlashSet;
 extern unsigned char	R_AlmTimeFlashSet;

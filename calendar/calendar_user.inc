@@ -28,7 +28,10 @@
 ; Destroy	    : 
 ; Stack depth	: 2
 ; =============================================		
-
+C_SnoozeInterval	EQU		5
+C_SnoozeMaxCount	EQU		3
+.EXTERNAL	R_SnoozeCount	
+.EXTERNAL	_R_SnoozeCount	
 ;.EXTERNAL			F_GetNsLiCalendar
 ; ==============================================
 ; Function	name: F_DispFlag 

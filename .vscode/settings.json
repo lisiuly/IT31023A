@@ -1,4 +1,5 @@
 {
+    // ===== 你原有的配置 =====
     "files.encoding": "gb2312",
     "files.associations": {
         "*.asm": "asm6502",
@@ -8,5 +9,21 @@
         "system.h": "c",
         "calendar.h": "c"
     },
-    "C_Cpp.dimInactiveRegions": false
+    "C_Cpp.dimInactiveRegions": false,
+
+    // ===== 新增 OAI Copilot 配置 =====
+    "oaicopilot.baseUrl": "https://www.inroi.shop/v1",
+    "oaicopilot.models": [
+        {
+            "id": "gpt-5.5",
+            "displayName": "My GPT-5.5",
+            "owned_by": "openai",
+            "context_length": 256000,
+            "max_tokens": 8192,
+            "apiMode": "openai-responses"
+            // 如果中转站不支持，删除上一行即可
+        }
+    ]
+    // 调试日志建议先注释掉，需要排查时再开启
+    // "oaicopilot.logLevel": "debug"
 }

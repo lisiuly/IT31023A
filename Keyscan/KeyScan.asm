@@ -169,7 +169,7 @@ _SetVolumeAndPlayAlarm1_flag	equ		SetVolumeAndPlayAlarm1_flag
 ;--------------
 R_SetBack			ds		1
 _R_SetBack			equ		R_SetBack
-C_SleepSec			equ		0x0a
+C_SleepSec			equ		60		; 1分钟(60×1s=60s)
 R_KeyValue			ds		1	;保存键值
 _R_KeyValue:		equ	R_KeyValue	
 R_KeyTemp			ds		1	
@@ -279,6 +279,7 @@ D_TimerSetstatus		equ		0x08
 D_Timerstatus_justpause	equ		0x10
 ; 新增：倒计时被暂停标志（用于在继续时播放“继续计时”）
 D_TimerPausedCountDown	equ		0x20
+D_TimerModeCountdown	equ		0x40
 
 R_DelayTemp		.ds	1
 _R_DelayTemp	.equ		R_DelayTemp
@@ -494,18 +495,47 @@ Enable_NewKey:
 ;	            ORA     #D_VOICE_BEEP
 ;	            STA     R_VoiceReq
 	?NoBeep:
-	 %btsf   R_OtherFlag,D_Alarming,?L_Exit ; 仅在响铃时响应贪睡
-;			%bits	R_OtherFlag,D_ToneDIS	
-;			LDA		R_OldKeyValue		
-;			CMP		#D_SleepKey			
-;			BNE		?Next1
-;			JSR		F_UpdateKey			
-;			%bits	R_OtherFlag,D_EnableSnooze
-;			LDA		#C_SnoozeTime5min
-;			STA		R_SleepTime
-;			rts
-	 		%bits	R_KeyFlag,D_KeyRelDis
-	 		%bits	R_OtherFlag,D_ToneDIS	
+	 ; --- 贪睡/闹铃响应处理 ---
+	 ; 不响铃:检查是否贪睡等待中
+	 %btsf	R_OtherFlag,D_Alarming,?L_ChkSnoozeWaitOnly
+	 ; 响铃中:闹钟键->贪睡(仅闹钟), 其他键->关闭
+	 LDA	R_OldKeyValue
+	 CMP	#D_AlarmKey
+	 BNE	?L_HandleCancel
+	 ; 正倒计时响铃不走贪睡
+	 %btst	R_OtherFlag,D_Timering,?L_HandleCancel
+	 JMP	?L_EnterSnooze
+	?L_ChkSnoozeWaitOnly:
+	 ; 不响铃+不贪睡->退出; 不响铃+贪睡中->取消贪睡
+	 %btsf	R_OtherFlag,D_EnableSnooze,?L_SnoozeDone
+	 JMP	?L_HandleCancel
+	?L_EnterSnooze:
+	 JSR	F_UpdateKey
+	 ; 首次贪睡置次数=3; 贪睡中则次数-1
+	 LDA	R_SnoozeCount
+	 BEQ	?L_SnoozeFirst
+	 DEC	R_SnoozeCount
+	 BEQ	?L_HandleCancel
+	 JMP	?L_SnoozeCommon
+	?L_SnoozeFirst:
+	 LDA	#C_SnoozeMaxCount
+	 STA	R_SnoozeCount
+	?L_SnoozeCommon:
+	 LDA	#C_SnoozeInterval
+	 STA	R_SleepTime
+	 %bits	R_OtherFlag,D_EnableSnooze
+	 %bits	R_OtherFlag,D_ToneDIS
+	 %bitr	R_OtherFlag,D_Alarming
+	 JMP	?L_SnoozeDone
+	?L_HandleCancel:
+	 ; 取消贪睡/关闭闹钟
+	 LDA	#0
+	 STA	R_SnoozeCount
+	 STA	R_SleepTime
+	 %bitr	R_OtherFlag,(D_EnableSnooze+D_Alarming)
+	 %bits	R_OtherFlag,D_ToneDIS
+	?L_SnoozeDone:
+	 	%bits	R_KeyFlag,D_KeyRelDis	
 ;		?Next1:	
 ;			%bitr	R_OtherFlag,D_EnableSnooze
 		; 	LDA		R_TimeFlashSet	;timer退出设置
@@ -591,22 +621,38 @@ Hold_Key:
 		RTS
 	?next:
 	NOP
-		%btst	R_KeyFlag,D_EnableFastAdd,?Enable_Fast	
-		%btst	R_KeyFlag,D_KeyRelDis,?exit	
+		LDA		R_KeyFlag
+		AND		#D_EnableFastAdd
+		BEQ		?L_SkipFast
+		JMP		?Enable_Fast
+	?L_SkipFast:
+		LDA		R_KeyFlag
+		AND		#D_KeyRelDis
+		BEQ		?L_SkipExit
+		JMP		?exit
+	?L_SkipExit:
 		%bits	R_KeyFlag,D_EnableFastAdd	
+		; 计时键长按始终放行(倒计时设置态下需能退出或清零)
+		LDA		R_OldKeyValue
+		CMP		#D_TimerKey
+		BNE		?L_NotTimerKey
+		JMP		?Enable_TimerlongSetKey
+	?L_NotTimerKey:
+		; 其他键长按需检查是否在设置态(时间/闹钟/计时设置阻塞)
 		LDA		R_TimeFlashSet
 		ORA		R_AlmTimeFlashSet
-;		ORA		R_VolumeFlashSet
 		ORA		R_TimerFlashSet
-		BNE		?exit4
+		BEQ		?L_NotInSetup
+		JMP		?exit4
+	?L_NotInSetup:
 		LDA		R_OldKeyValue	;进入设置
 		CMP		#D_TimeKey
-		BEQ		?Enable_TimelongSetKey
+		BNE		?L_NotTimeKey
+		JMP		?Enable_TimelongSetKey
+	?L_NotTimeKey:
 		CMP		#D_AlarmKey
-		BEQ		?Enable_AlmlongSetKey
-
-		CMP		#D_TimerKey		;定时键	
-		BEQ		?Enable_TimerlongSetKey
+		BNE		?L_Next
+		JMP		?Enable_AlmlongSetKey
 
 	?L_Next:	
 		 LDA		R_OldKeyValue			
@@ -657,25 +703,78 @@ Hold_Key:
 		JSR		F_UpdateKey		
 		LDA		R_VoiceFlag
 		AND		#D_OpenReady
-		BNE		?Alm_Set
+		BNE		?Alm_CheckOnOff
 		JSR		Voice_PowerOn_Noxiaonao   
-	?Alm_Set:
-		lda	#01
-		sta	R_AlmTimeFlashSet
-		; 请求播放“闹钟设置”语音（由主循环播放）
+	?Alm_CheckOnOff:
+		; 检查当前闹钟组是否已开启
+		LDX		R_CurrentGroup
+		LDA		BitMaskTable,X
+		AND		R_AlarmOnOff
+		BEQ		?Alm_EnterSet	; 关闭 -> 进入设置
+		; 已开启 -> 关闭该闹钟组
+		LDA		BitMaskTable,X
+		EOR		#0FFH
+		AND		R_AlarmOnOff
+		STA		R_AlarmOnOff
+		RTS
+	?Alm_EnterSet:
+		; 进入设置即开启该闹钟组
+		LDX		R_CurrentGroup
+		LDA		BitMaskTable,X
+		ORA		R_AlarmOnOff
+		STA		R_AlarmOnOff
+		lda		#D_SetAlmHour
+		sta		R_AlmTimeFlashSet
+		; 请求播放闹钟设置语音
 		LDA		R_VoiceReq
 		ORA		#D_VOICE_ALARM_SET
 		STA		R_VoiceReq
 		%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音
 		RTS	
 ?Enable_TimerlongSetKey:
-		%btst R_TimerFlag,(D_Timerstatus_just+D_Timerstatus),?L_Exit
- 		JSR	F_UpdateKey   
-		lda	#01
-		STA	R_TimerFlashSet
-;		%bits	R_OtherFlag,D_SetVolumeFlag
-	?L_Exit:	
-		RTS			
+		; 倒计时设置态 -> 退出不保存,清零
+		LDA		R_TimerFlashSet
+		CMP		#D_TimerSet
+		BEQ		?L_ExitSetNoSave
+		; 计时运行中或暂停中 -> 清零归零
+		LDA		R_TimerFlag
+		AND		#(D_Timerstatus_just+D_Timerstatus+D_Timerstatus_justpause+D_TimerPausedCountDown)
+		BNE		?L_ClearTimer
+		; 计时空闲(00:00) -> 启动正计时
+		JSR		F_UpdateKey
+		LDA		R_TimerFlag
+		AND		#~(D_TimerModeCountdown+D_Timerstatus+D_Timerstatus_justpause+D_TimerPausedCountDown)
+		ORA		#D_Timerstatus_just
+		STA		R_TimerFlag
+		LDA		#0
+		STA		R_TimerMinute
+		STA		R_TimerSecond
+		LDA		R_VoiceReq
+		AND		#1FH
+		ORA		#D_VOICE_TIMER_START
+		STA		R_VoiceReq
+		%bitr	R_VoiceReq,D_VOICE_BEEP
+		RTS
+	?L_ClearTimer:		; 长按清零:停止并归零
+		JSR		F_UpdateKey
+		LDA		#0
+		STA		R_TimerMinute
+		STA		R_TimerSecond
+		STA		R_TimerFlashSet
+		LDA		#~(D_Timerstatus_just+D_Timerstatus+D_Timerstatus_justpause+D_TimerPausedCountDown+D_TimerModeCountdown)
+		AND		R_TimerFlag
+		STA		R_TimerFlag
+		RTS
+	?L_ExitSetNoSave:	; 倒计时设置态长按退出不保存
+		JSR		F_UpdateKey
+		LDA		#0
+		STA		R_TimerMinute
+		STA		R_TimerSecond
+		STA		R_TimerFlashSet
+		LDA		#~(D_Timerstatus_just+D_Timerstatus+D_Timerstatus_justpause+D_TimerPausedCountDown+D_TimerModeCountdown)
+		AND		R_TimerFlag
+		STA		R_TimerFlag
+		RTS
 ?Enable_LongPowerKey:
 		JMP	Enable_LongPowerKey
 		
@@ -886,16 +985,14 @@ Enable_AlarmKey:
     LDA		R_AlmTimeFlashSet
     BEQ		?L_NonSetMode      ; 非设置：循环查看
     
-    ; --- 设置状态：配置流程
+    ; --- 设置状态：时->分->天制->确认
     LDA     R_AlmTimeFlashSet
-    CMP     #D_SetAlm        ; 开关阶段
-    BEQ     ?L_HandleAlmSwitch
-    CMP     #D_SetAlmHour    ; 小时阶段
+    CMP     #D_SetAlmHour    ; 时 -> 分
     BEQ     ?L_ToMinute
-    CMP     #D_SetAlmMinute  ; 分钟阶段
+    CMP     #D_SetAlmMinute  ; 分 -> 天制
     BEQ     ?L_ToDay
-    CMP     #D_SetAlmDay     ; 工作日阶段
-    BEQ     ?L_SwitchGroup_Stop
+    CMP     #D_SetAlmDay     ; 天制 -> 确认退出
+    BEQ     ?L_ConfirmExit
     RTS
 
 	; 非设置状态：循环切换组（内联精简）
@@ -942,7 +1039,7 @@ Enable_AlarmKey:
 		STA     L_TempBit       
 		LDA     R_AlarmOnOff    
 		AND     L_TempBit       
-		BEQ     ?L_SwitchGroup_Stop ; 关闭：跳过组
+		BEQ     ?L_Exit ; 关闭：跳过组(此路径不再触发,保留兼容)
 		
 		LDA     #D_SetAlmHour   ; 开启：进小时设置
 		STA     R_AlmTimeFlashSet
@@ -957,24 +1054,12 @@ Enable_AlarmKey:
 		STA     R_AlmTimeFlashSet
 		RTS
 	
-	; 设置状态：切换组（0→1→2停止，内联精简）
-	?L_SwitchGroup_Stop:
-		LDA     R_CurrentGroup
-		CMP     #2              
-		BEQ     ?L_ExitSetAlm   
-		INC     R_CurrentGroup  	
-	?L_ResetStage:
-		LDA     #D_SetAlm       ; 重置为开关阶段
-		STA     R_AlmTimeFlashSet
-
-	?L_Exit:	
-		RTS	
-	?L_ExitSetAlm:
+	?L_ConfirmExit:		; 确认:保存并退出闹钟设置
 		LDA		#00
 		STA		R_AlmTimeFlashSet
-		;加个判断123
+	?L_Exit:
 		RTS
-; Enable_VolumeKey:	;音量调节键
+;		BNE		e_VolumeKey:	;音量调节键
 ; 		LDA		R_TimeFlashSet
 ; 		ORA		R_AlmTimeFlashSet
 ; 		bne		?L_Exit
@@ -1007,105 +1092,101 @@ Enable_TimerKey:	;暂停和开始计时键
 		JSR		Voice_PowerOn
 		RTS
 	?Timer_Cont:
+		; 若时间/闹钟设置态激活,短按计时键退出
 		LDA		R_TimeFlashSet
 		ORA		R_AlmTimeFlashSet
-		ORA		R_TimerFlashSet
-		BEQ		?L_Next
+		BNE		?L_ClearOtherSet
+		; --- 1.计时运行中 -> 暂停 ---
+		LDA		R_TimerFlag
+		AND		#(D_Timerstatus_just+D_Timerstatus)
+		BEQ		?L_SkipPause
+		JMP		?L_Pause
+	?L_SkipPause:
+		; --- 2.计时暂停中 -> 继续 ---
+		LDA		R_TimerFlag
+		AND		#(D_Timerstatus_justpause+D_TimerPausedCountDown)
+		BEQ		?L_SkipResume
+		JMP		?L_Resume
+	?L_SkipResume:
+		; --- 3.倒计时设置态 -> 开始倒计时 ---
+		LDA		R_TimerFlashSet
+		CMP		#D_TimerSet
+		BNE		?L_SkipCdStart
+		JMP		?L_StartCountdown
+	?L_SkipCdStart:
+		; --- 4.计时清零(00:00) -> 切换正/倒计时模式 ---
+		LDA		R_TimerFlag
+		EOR		#D_TimerModeCountdown
+		STA		R_TimerFlag
+		AND		#D_TimerModeCountdown
+		BNE		?L_DoSetMode
+		JMP		?L_Exit
+	?L_DoSetMode:
+		; 切到倒计时:进入设置态,默认60分钟
+		LDA		#60
+		STA		R_TimerMinute
+		LDA		#0
+		STA		R_TimerSecond
+		LDA		#D_TimerSet
+		STA		R_TimerFlashSet
+		RTS
+	?L_ClearOtherSet:	; 退出其他设置态
 		LDA		#00
 		STA		R_TimeFlashSet
-		STA		R_TimerFlashSet
 		STA		R_AlmTimeFlashSet
 		RTS
-	?L_Next:	
-		%btst R_TimerFlag,(D_Timerstatus_just+D_Timerstatus),?L_Stop		;在走-》暂停
-		%btst R_TimerFlag,D_Timerstatus_justpause,?L_JustTimerSrart	
-		%btst R_TimerFlag,D_TimerPausedCountDown,?L_DownTimerSrart			
-		; %btsf R_TimerFlag,D_TimerSetstatus,?L_NoSetStartFlag
-		; %bits R_TimerFlag,TIMER_START_FLAG
-	?L_NoSetStartFlag:
-		%bitr R_TimerFlag,D_TimerSetstatus	
-		LDA		R_TimerMinute	;开始
-		ORA		R_TimerSecond
-		BEQ		?L_UPTimerSrart				;开始计时
-		%bits	 R_TimerFlag,D_Timerstatus
-			; 请求播放“开始计时”语音
-			LDA		R_VoiceReq
-			AND		#01FH
-			ORA		#D_VOICE_TIMER_START
-			STA		R_VoiceReq	
-				%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
-		RTS
-	?L_UPTimerSrart:	
-	  	%bitr	R_TimerFlag,(D_Timerstatus_justpause+D_TimerPausedCountDown)
-		%bits	R_TimerFlag,D_Timerstatus_just
-				; 请求播放“开始计时”语音
-				LDA		R_VoiceReq
-				AND		#01FH
-				ORA		#D_VOICE_TIMER_START
-				STA		R_VoiceReq	
-					%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
-		RTS
-	?L_DownTimerSrart:
-	  	%bitr	R_TimerFlag,(D_Timerstatus_justpause+D_TimerPausedCountDown)
-		%bits	R_TimerFlag,D_Timerstatus
-			; 请求播放“继续计时”语音
-			LDA		R_VoiceReq
-			AND		#01FH
-			ORA		#D_VOICE_TIMER_CONTINUE
-			STA		R_VoiceReq
-			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
-		RTS		
-		
-	?L_JustTimerSrart:	
-	  	%bitr	R_TimerFlag,(D_Timerstatus_justpause+D_TimerPausedCountDown)
-		%bits	R_TimerFlag,D_Timerstatus_just
-;		LDA	#32
-;  		STA	R_POINT 
-			; 请求播放“继续计时”语音
-			LDA		R_VoiceReq
-			AND		#01FH
-			ORA		#D_VOICE_TIMER_CONTINUE
-			STA		R_VoiceReq
-			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
-		RTS
-		
- 	?L_Stop:
- 		%btst R_TimerFlag,D_Timerstatus_just,?L_JustStop
-  		%bitr R_TimerFlag,D_Timerstatus
+	?L_Pause:			; 倒计时运行->倒计时暂停
+		%btst	R_TimerFlag,D_Timerstatus_just,?L_PauseFwd
+		%bitr	R_TimerFlag,D_Timerstatus
 		%bits	R_TimerFlag,D_TimerPausedCountDown
-			; 请求播放“暂停计时”语音
-			LDA		R_VoiceReq
-			AND		#01FH
-			ORA		#D_VOICE_TIMER_PAUSE
-			STA		R_VoiceReq
-			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
-  		RTS
-		
-	?L_JustStop:
-		%bitr R_TimerFlag,D_Timerstatus_just
-	;		LDA	#00
-	;  		STA	R_POINT 
-		%bits R_TimerFlag,D_Timerstatus_justpause
-			; 请求播放“暂停计时”语音
-			LDA		R_VoiceReq
-			AND		#01FH
-			ORA		#D_VOICE_TIMER_PAUSE
-			STA		R_VoiceReq
-			%bitr	R_VoiceReq,D_VOICE_BEEP	;按键音	
+		LDA		R_VoiceReq
+		AND		#1FH
+		ORA		#D_VOICE_TIMER_PAUSE
+		STA		R_VoiceReq
+		%bitr	R_VoiceReq,D_VOICE_BEEP
 		RTS
-			
-; Enable_LongTimerKey:	;暂停计时状态下，计时时间跳转至00:00
-; 		%btst R_TimerFlag,(D_Timerstatus_just+D_Timerstatus),?L_Exit	;正在走时退出
-; 		JSR		F_UpdateKey
-; 		LDA		#00
-; 		STA		R_TimerMinute
-; 		STA		R_TimerSecond
-; ;		STA		R_POINT
-; 	?L_Exit:	
-; 		RTS
-		
-;ann============================================
-;按键附加状态
+	?L_PauseFwd:			; 正计时运行->正计时暂停
+		%bitr	R_TimerFlag,D_Timerstatus_just
+		%bits	R_TimerFlag,D_Timerstatus_justpause
+		LDA		R_VoiceReq
+		AND		#1FH
+		ORA		#D_VOICE_TIMER_PAUSE
+		STA		R_VoiceReq
+		%bitr	R_VoiceReq,D_VOICE_BEEP
+		RTS
+	?L_Resume:			; 倒计时暂停->倒计时运行
+		%btst	R_TimerFlag,D_Timerstatus_justpause,?L_ResumeFwd
+		%bitr	R_TimerFlag,D_TimerPausedCountDown
+		%bits	R_TimerFlag,D_Timerstatus
+		LDA		R_VoiceReq
+		AND		#1FH
+		ORA		#D_VOICE_TIMER_CONTINUE
+		STA		R_VoiceReq
+		%bitr	R_VoiceReq,D_VOICE_BEEP
+		RTS
+	?L_ResumeFwd:		; 正计时暂停->正计时运行
+		%bitr	R_TimerFlag,D_Timerstatus_justpause
+		%bits	R_TimerFlag,D_Timerstatus_just
+		LDA		R_VoiceReq
+		AND		#1FH
+		ORA		#D_VOICE_TIMER_CONTINUE
+		STA		R_VoiceReq
+		%bitr	R_VoiceReq,D_VOICE_BEEP
+		RTS
+	?L_StartCountdown:	; 倒计时设置态短按->开始倒计时
+		LDA		#0
+		STA		R_TimerFlashSet
+		LDA		R_TimerFlag
+		AND		#~(D_Timerstatus_justpause+D_TimerPausedCountDown)
+		ORA		#(D_Timerstatus+D_TimerModeCountdown)
+		STA		R_TimerFlag
+		LDA		R_VoiceReq
+		AND		#1FH
+		ORA		#D_VOICE_TIMER_START
+		STA		R_VoiceReq
+		%bitr	R_VoiceReq,D_VOICE_BEEP
+	?L_Exit:			; 切回正计时模式,仅更新图标
+		RTS
 ;===============================================		
 F_UpdateKey:						
 		%bits	R_KeyFlag,D_KeyRelDis	
@@ -1229,7 +1310,7 @@ Enable_UpKey:
 	L_UP_Time_Minute_setup:
 		INC		R_DateMinute
 		LDA		R_DateMinute
-		CMP		#60d
+		CMP		#61d
 		BCS		?L_GV_0_minu_time
 		JMP		L_Dateminu_show
 	?L_GV_0_minu_time:

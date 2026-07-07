@@ -115,6 +115,8 @@ C_HideLow:				.EQU	%11110000
 .PUBLIC		_R_Second_Temp
 .PUBLIC		R_IconCount
 .PUBLIC		_R_IconCount
+.PUBLIC		R_SnoozeCount
+.PUBLIC		_R_SnoozeCount
 ;==========================================
 ;Variable RAM declare area
 ;==========================================
@@ -194,6 +196,10 @@ R_TimerMinute:		.ds		1
 _R_TimerMinute:		.equ	R_TimerMinute
 R_TimerSecond:		.ds		1
 _R_TimerSecond:		.equ	R_TimerSecond
+C_SnoozeInterval	EQU		5
+C_SnoozeMaxCount	EQU		3
+R_SnoozeCount		ds		1
+_R_SnoozeCount		equ		R_SnoozeCount
 
 R_IconCount			ds	1
 _R_IconCount		equ		R_IconCount
@@ -1840,20 +1846,42 @@ _Disable_Alarm:
 	%btsf	R_OtherFlag,(D_Alarming+D_Timering),Exit_ALMCheck
 	DEC		R_SnoozeTime
 	BNE		Exit_ALMCheck
+	; 保存D_Timering状态用于区分闹钟/计时
+	%btst	R_OtherFlag,D_Timering,?L_Exit
+	; 自动贪睡:仅闹钟(非计时器)且次数>0
+	LDA		R_Calendar_Temp0
+	BNE		Exit_ALMCheck
+	LDA		R_SnoozeCount
+	BEQ		Exit_ALMCheck
+	DEC		R_SnoozeCount
+	BEQ		Exit_ALMCheck
+	LDA		#C_SnoozeInterval
+	STA		R_SleepTime
+	%bits	R_OtherFlag,D_EnableSnooze
+	LDA		#D_UI_Time
+	STA		R_Uart_OpenTime	
+?L_Exit:	
 	%bitr	R_OtherFlag,(D_Alarming+D_Timering)
 	%bits	R_OtherFlag,D_ToneDIS
-	LDA		#D_UI_Time
-	STA		R_Uart_OpenTime
+
 Exit_ALMCheck:	
 	
 	rts      
 
 L_LoadAlarming:		
+		 ; 新闹钟/计时响铃时取消之前的贪睡
+		 LDA		#0
+		 STA		R_SnoozeCount
+		 STA		R_SleepTime
+		 %bitr	R_OtherFlag,D_EnableSnooze
 	     LDA		#C_SnoozeTime1min
 		 STA		R_SnoozeTime
 		 JSR		Voice_PowerOn_Noxiaonao	 
 		 %bitr	R_OtherFlag,D_ToneDIS	
 		%bits	R_OtherFlag,(D_Alarming+D_AlarmingStatus)	
+		; 首次响铃:初始化贪睡次数=3
+		LDA		#C_SnoozeMaxCount
+		STA		R_SnoozeCount
 
 		CLI
 		RTS
@@ -1864,6 +1892,9 @@ F_CheckSnoozeAlarm:			;贪睡时间检查
 		BEQ		Check_SnoozeTrigger  ;时间到，触发贪睡
 		RTS  
 	Check_SnoozeTrigger:
+		; 贪睡时间到:次数>0则重新响铃
+		LDA		R_SnoozeCount
+		BEQ		?L_Exit
 		%bitr	R_OtherFlag,D_EnableSnooze
 		JSR		L_LoadAlarming			
 

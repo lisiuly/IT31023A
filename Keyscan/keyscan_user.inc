@@ -94,6 +94,7 @@ TIMER_START_FLAG	equ		0x04
 D_TimerSetstatus	equ		0x08
 D_Timerstatus_justpause	equ	0x10
 D_TimerPausedCountDown	equ		0x20
+D_TimerModeCountdown	equ		0x40
 ;.EXTERN		F_OpenData
 
 .EXTERN		SetVolumeAndPlayAlarm1_flag

@@ -18,6 +18,8 @@ unsigned char t;               // 备份循环计数变量
 //extern void PlayA1800_User_index(unsigned index);
 //extern unsigned CheckA1800Status(void);
 
+static void Voice_SendAckFrame(void);
+
 extern unsigned char CLOCK_FLAG_ASR;	
 //extern unsigned UART_RxBuffer[9];
 unsigned char UART_RxBuffer[16];
@@ -1299,6 +1301,7 @@ void Check_UartData(void)
 		&& UART_RxBuffer[8]==FRAME_TAIL||(R_OtherFlag & D_Urat_Open) )//&& CheckAudioStatus() == 0)
 		{
 		 if(CLOCK_FLAG_ASR == 1){		
+		 			Voice_SendAckFrame();
 				if(UART_RxBuffer[2] == 0) //固定为零则通过
 				{
 					for(i=0;i<Function_Total;i++)
@@ -1420,7 +1423,22 @@ void Voice_SendStopControlCmd(void)
 	g_voice_play_status = PLAY_STATUS_STOPPED;
     
 }
-//}
+	static void UART_SendRawByte(unsigned char data)
+	{
+		IsUARTBusy();
+		P_WDT_Clear = 0x00;
+		P_UART_Data = data;
+	}
+
+	static void Voice_SendAckFrame(void)
+	{
+		UART_SendRawByte(FRAME_HEADER_HI);
+		UART_SendRawByte(FRAME_HEADER_LO);
+		UART_SendRawByte(Power_On);
+		UART_SendRawByte(0x00);
+		UART_SendRawByte(FRAME_TRAILER);
+	}
+	
 //
 ///* 5. IO扩展口控制 */
 //void Voice_SendIOCmd(unsigned char port, unsigned char level)

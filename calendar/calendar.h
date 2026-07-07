@@ -39,6 +39,8 @@ extern	unsigned char	R_Alarm_ENDIS_Flag;
 extern	unsigned char	R_TimerMinute;
 extern	unsigned char	R_TimerSecond;
 
+extern	unsigned char	R_SnoozeCount;
+
 #define		D_Alarm_EN		0X80
 
 

@@ -231,6 +231,13 @@ void F_SecondRTC(void)
 		R_SetBack--;
 		   if (R_SetBack == 0)
 			{
+				/* 倒计时设置超时:返回清零待机状态,清空计时值与标志 */
+				if (R_TimerFlashSet != 0)
+				{
+					R_TimerMinute = 0;
+					R_TimerSecond = 0;
+					R_TimerFlag = 0;
+				}
 				R_TimeFlashSet = 0;
 				R_AlmTimeFlashSet = 0;
 				R_TimerFlashSet	= 0;

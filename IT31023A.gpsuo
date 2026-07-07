@@ -130,7 +130,6 @@
 	</UI_disassembler_view>
 	<OpenState>
 		<OpenFiles>
-			Path=".\\system.c"
 			Path=".\\GPL815P.h"
 			Path=".\\calendar\\calendar.asm"
 			Path=".\\Timer\\Timer.h"
@@ -145,9 +144,7 @@
 			Path=".\\lcd\\lcd_define.inc"
 			Path=".\\lcd\\LCD_user.h"
 			Path=".\\UART\\UART_Code.inc"
-			Path=".\\UART\\UART_Code.asm"
 			Path=".\\cstartup.asm"
-			Path=".\\Keyscan\\KeyScan.asm"
 			Path=".\\lcd\\lcd.tab"
 			Path=".\\lcd\\lcd.asm"
 			Path=".\\lcd\\lcd_user.inc"
@@ -155,15 +152,17 @@
 			Path=".\\Timer\\Timer.c"
 			Path=".\\UART\\UART_Rx.h"
 			Path=".\\ADC\\ADC.h"
-			Path=".\\GPL815PXx_Calendar_6502C.lik"
 			Path=".\\GPL815P.inc"
-			Path=".\\ADC\\ADC.asm"
 			Path=".\\Keyscan\\keyscan_user.inc"
 			Path=".\\ADC\\ADC_user.inc"
-			Path=".\\UART\\UART.c"
 			Path=".\\main.c"
-			Path=".\\Release\\IT31023A_Report.html"
 			Path=".\\calendar\\calendar_user.inc"
+			Path=".\\UART\\UART.c"
+			Path=".\\UART\\UART_Code.asm"
+			Path=".\\Keyscan\\KeyScan.asm"
+			Path=".\\system.c"
+			Path=".\\GPL815PXx_Calendar_6502C.lik"
+			Path=".\\ADC\\ADC.asm"
 			State="0,0,0"
 		</OpenFiles>
 		<OpenFolders>

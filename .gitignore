@@ -1,1 +1,59 @@
+# ============================================================
+# IT31068B 智能可视钟 — Git 忽略规则
+# ============================================================
+
+# ---- 参考 Demo（其他项目参考代码，不上传） ----
+参考demo/
+
+# ---- 烧录文件（编译产物 .hdb，不上传） ----
+烧录文件/
+
+# ---- 所有 Release 构建输出目录 ----
 Release/
+**/Release/
+
+# ---- 编译中间产物 ----
+*.lst
+*.obj
+*.cfg
+
+# *.clst
+# *.i
+# *.hdb
+# *.map
+# *.sym
+# *.sta
+# *.cms
+# *.sbms
+# *.olp
+# *.alst
+# *.cglst
+
+# # ---- 链接器自动生成文件 ----
+ _Prog_.lik
+ GPMakefile
+# _Combine_.lik
+# _Overlap_.lik
+# _GPCBankOptimization.asm
+# _GPCBankOptimization.lst
+# _GPCBankOptimization.obj
+
+# # ---- IDE 用户本地文件 ----
+# *.gpsuo
+# *.qpcact
+# *.qpcres
+
+# ---- 备份目录 ----
+*Backup*/
+*backup*/
+
+# # ---- SVN 元数据 ----
+# .svn/
+
+# ---- 崩溃/调试信息 ----
+CrashInfo.zip
+
+# # ---- 系统/临时文件 ----
+# Thumbs.db
+# Desktop.ini
+# $RECYCLE.BIN/

@@ -1544,9 +1544,18 @@ F_DisplayHLValue:
 		
 ;====data==============
 F_SWatch_Modul:
-    ; 1. 检查是正计时还是倒计时
-    %btst R_TimerFlag, D_Timerstatus_just, ?L_Check_CountUp
+    ; 正计时运行或暂停中 -> 显示正计时图标
+    %btst R_TimerFlag, (D_Timerstatus_just+D_Timerstatus_justpause), ?L_Check_CountUp
+ ;   %btst R_TimerFlag, D_Timerstatus_justpause, ?L_Check_CountUp
+    ; 倒计时运行或暂停中 -> 显示倒计时图标
+    %btst R_TimerFlag, (D_Timerstatus+D_TimerPausedCountDown+D_TimerModeCountdown), ?L_CountDown_Display
+ ;   %btst R_TimerFlag, D_TimerPausedCountDown, ?L_CountDown_Display
+    ; 计时空闲(00:00) -> 根据模式标志位显示
+ ;   %btst R_TimerFlag, D_TimerModeCountdown, ?L_CountDown_Display
+    ; 默认:正计时模式
+    JMP ?L_Check_CountUp
 
+?L_CountDown_Display:
     ; ===========================
     ; 倒计时模式处理 (Count Down)
     ; ===========================
@@ -1579,7 +1588,7 @@ F_SWatch_Modul:
     ; 3. 冒号闪烁处理
     ; 检查是否处于暂停状态 (D_Timerstatus_justpause)
     %btst R_TimerFlag, D_Timerstatus_justpause, ?L_Col_On ; 暂停时常亮
-    
+    %btsf R_TimerFlag, D_Timerstatus_just, ?L_Col_On ; 暂停时常亮   
     ; 正常走时，检查是否闪烁 (通过 R_flash_Temp 控制)
     LDA #01H
     BIT R_flash_Temp

@@ -25,8 +25,10 @@ void F_ForwardTimer(void) {
         // 正计时结束
 	   	Voice_PowerOn_Noxiaonao();//电源	
 //    	P_IO_PortA_Data &= ~0x20;	//bit5 拉DI	
+
         R_TimerFlag &= ~D_Timerstatus_just;  // 清除正计时标志
         R_SnoozeTime = C_SnoozeTime1min;  // 设置响闹时间为1分钟
+        R_OtherFlag &= ~(D_ToneDIS+D_EnableSnooze+D_Alarming);
         R_OtherFlag &= ~D_ToneDIS;
         R_OtherFlag |= (D_Alarming+D_TimeringStatus+D_Timering);      
         
@@ -57,8 +59,8 @@ void F_CountdownTimer(void) {
 //    	P_IO_PortA_Data &= ~0x20;	//bit5 拉DI	
         R_TimerFlag &= ~D_Timerstatus;  // 清除倒计时标志
         R_SnoozeTime = C_SnoozeTime1min;  // 设置响闹时间为1分钟
-        R_OtherFlag &= ~D_ToneDIS;
-        R_OtherFlag |= (D_Alarming+D_TimeringStatus);        
+        R_OtherFlag &= ~(D_ToneDIS+D_EnableSnooze+D_Alarming);
+        R_OtherFlag |= (D_Alarming+D_TimeringStatus+D_Timering);        
         return;
     }
     	RB_Lcd_Updata_Flag |= D_LcdUpdate;

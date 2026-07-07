@@ -111,7 +111,6 @@
 			Path=".\\Keyscan\\key_user.h"
 			Path=".\\lcd\\LCD_user.h"
 			Path=".\\lcd\\lcd_user.inc"
-			Path=".\\system.c"
 			Path=".\\System.h"
 			Path=".\\Int_Vec.c"
 			Path=".\\Backup2025-12-15-14-41-20\\GPL815P.h"
@@ -121,7 +120,8 @@
 			Path=".\\Timer\\Timer.c"
 			Path=".\\GPL815P.h"
 			Path=".\\lcd\\lcd.asm"
-			State="285,7420,7420"
+			Path=".\\system.c"
+			State="149,3617,3628"
 		</OpenFiles>
 		<OpenFolders>
 			<{573B84F6-3F64-4218-A5DC-6D7D42DAB8F0}>
