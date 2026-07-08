@@ -150,7 +150,7 @@ D_DOWN_key:				.EQU		0X02
 ;==========================================
 ;Variable RAM declare area
 ;==========================================
-keyscanram:			.section	.PAGE0
+.PAGE0	;keyscanram:			.section	
 R_DebounceCnt:			.DS		1
 _R_DebounceCnt:		equ	R_DebounceCnt
 C_KeyDebounce		equ		4 
@@ -335,8 +335,10 @@ D_VOICE_TIMER_CONTINUE		equ	0x80
 ;; Return		: none
 ;; Destroy		: none 
 ;; Stack depth	: none
-;; =============================================
-keyscan:    .SECTION
+;; =========================================
+;
+;keyscan:    .SECTION
+.CODE
 ;F_InitialKeyBorad:
 ;_F_InitialKeyBorad:
 ;			LDA			#00H
@@ -467,10 +469,7 @@ _F_KeyScan:
 
 Enable_NewKey:
 		;新按下的按键处理
-;		JSR		F_OpenBacklight
 			%bitr	R_KeyFlag,(D_KeyRelDis+D_EnableFastAdd)
-;			%bitr	R_KeyFlag,D_EnableFastAdd
-;			%bits	R_KeyFlag,D_KeyTone	;按键音
 	?SkipKeyTone:
 			LDA		#C_LongKey2Sec
 			STA		R_LongKeyTime	;长按3秒开始计时			
@@ -497,66 +496,35 @@ Enable_NewKey:
 	?NoBeep:
 	 ; --- 贪睡/闹铃响应处理 ---
 	 ; 不响铃:检查是否贪睡等待中
-	 %btsf	R_OtherFlag,D_Alarming,?L_ChkSnoozeWaitOnly
+	 %btsf	R_OtherFlag,D_Alarming,?L_Sno_NOYES
 	 ; 响铃中:闹钟键->贪睡(仅闹钟), 其他键->关闭
+	 %btsf	R_OtherFlag,D_Timering,?L_Next
+	 %bitr	R_OtherFlag,D_Timering
+	 %bits	R_OtherFlag,D_ToneDIS
+	 JMP	?L_Sno_NOYES	
+	 ?L_Next:
 	 LDA	R_OldKeyValue
 	 CMP	#D_AlarmKey
 	 BNE	?L_HandleCancel
 	 ; 正倒计时响铃不走贪睡
-	 %btst	R_OtherFlag,D_Timering,?L_HandleCancel
-	 JMP	?L_EnterSnooze
-	?L_ChkSnoozeWaitOnly:
-	 ; 不响铃+不贪睡->退出; 不响铃+贪睡中->取消贪睡
-	 %btsf	R_OtherFlag,D_EnableSnooze,?L_SnoozeDone
-	 JMP	?L_HandleCancel
-	?L_EnterSnooze:
-	 JSR	F_UpdateKey
-	 ; 首次贪睡置次数=3; 贪睡中则次数-1
-	 LDA	R_SnoozeCount
-	 BEQ	?L_SnoozeFirst
-	 DEC	R_SnoozeCount
-	 BEQ	?L_HandleCancel
-	 JMP	?L_SnoozeCommon
-	?L_SnoozeFirst:
-	 LDA	#C_SnoozeMaxCount
-	 STA	R_SnoozeCount
 	?L_SnoozeCommon:
 	 LDA	#C_SnoozeInterval
 	 STA	R_SleepTime
-	 %bits	R_OtherFlag,D_EnableSnooze
-	 %bits	R_OtherFlag,D_ToneDIS
-	 %bitr	R_OtherFlag,D_Alarming
+	 %bits	R_OtherFlag,(D_EnableSnooze+D_ToneDIS)
+	 %bitr	R_OtherFlag,D_Alarming		; 立即停止响铃,进入贪睡
 	 JMP	?L_SnoozeDone
+ 	?L_Sno_NOYES:
+	 %btst	R_OtherFlag,D_EnableSnooze,?L_HandleCancel
+	 RTS
 	?L_HandleCancel:
 	 ; 取消贪睡/关闭闹钟
-	 LDA	#0
-	 STA	R_SnoozeCount
-	 STA	R_SleepTime
-	 %bitr	R_OtherFlag,(D_EnableSnooze+D_Alarming)
-	 %bits	R_OtherFlag,D_ToneDIS
+	 %bitr	R_OtherFlag,D_EnableSnooze
 	?L_SnoozeDone:
-	 	%bits	R_KeyFlag,D_KeyRelDis	
-;		?Next1:	
-;			%bitr	R_OtherFlag,D_EnableSnooze
-		; 	LDA		R_TimeFlashSet	;timer退出设置
-		; 	ORA		R_AlmTimeFlashSet
-		; 	ORA		R_VolumeFlashSet
-		; 	BEQ		?L_Exit			
-		; 	LDA		R_OldKeyValue		
-		; 	CMP		#D_TimerKey			
-		; 	BNE		?L_Exit		
-		; 	JSR		F_UpdateKey	
-		; 	LDA		#00
-		; 	STA		R_TimeFlashSet
-		; 	STA		R_AlmTimeFlashSet
-		; 	STA		R_VolumeFlashSet	
-		; 	LDA		R_VolumeFlashSet	;退出曲设置
-		; 	BEQ		?L_Exit
-		; 	%bits	R_OtherFlag,D_ToneDIS
-		; 	LDA		#0
-		; 	STA		R_VolumeFlashSet			
-		 ?L_Exit:
+	 	%bits	R_KeyFlag,D_KeyRelDis				
+	 ?L_Exit:
 			RTS
+
+			
 Enable_BackLEDKey:
 		; 3档背光循环：1->2->3->1，过滤无效值         
 		JSR		F_UpdateKey	

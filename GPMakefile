@@ -1,6 +1,6 @@
 #####################################################################
 #
-#	Created by 6502 C Project		2026-6-30 18:47:12
+#	Created by 6502 C Project		2026-7-7 18:35:18
 #
 #####################################################################
 TOOLSDIR		= C:\PROGRA~2\GENERA~1\GPIDE_~1.0\Tools\Compiler\6502
@@ -145,7 +145,7 @@ HANDLE_CGENASMPATH 	=  $(subst "$(SPACE_CHAR),"$(COMMA_CHAR),$(subst $(1)$(SPACE
 ".\RELEASE\CALENDAR.OBJ" : ".\calendar\calendar.asm" ".\GPL815P.INC" ".\KEYSCAN\KEYSCAN_USER.INC" ".\SYS\MACRO.INC" ".\LCD\LCD_USER.INC"
 	$(ASM) $(ASMFLAG) -o ".\Release\CALENDAR.OBJ" ".\calendar\calendar.asm"
 	$(ECHO)
-".\RELEASE\LCD.OBJ" : ".\lcd\lcd.asm" ".\GPL815P.INC" ".\LCD\LCD.TAB" ".\CALENDAR\CALENDAR_USER.INC" ".\KEYSCAN\KEYSCAN_USER.INC" ".\ADC\ADC_USER.INC" ".\LCD\LCD_DEFINE.INC"
+".\RELEASE\LCD.OBJ" : ".\lcd\lcd.asm" ".\GPL815P.INC" ".\LCD\LCD.TAB" ".\CALENDAR\CALENDAR_USER.INC" ".\KEYSCAN\KEYSCAN_USER.INC" ".\LCD\LCD_DEFINE.INC" ".\ADC\ADC_USER.INC"
 	$(ASM) $(ASMFLAG) -o ".\Release\LCD.OBJ" ".\lcd\lcd.asm"
 	$(ECHO)
 ".\RELEASE\KEYSCAN.OBJ" : ".\Keyscan\KeyScan.asm" ".\GPL815P.INC" ".\LCD\LCD_USER.INC" ".\CALENDAR\CALENDAR_USER.INC" ".\ADC\ADC_USER.INC" ".\SYS\MACRO.INC"

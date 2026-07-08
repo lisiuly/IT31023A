@@ -42,6 +42,8 @@ C_LCDBUFFER_LENGTH:		.EQU	30D
 .INCLUDE    	lcd\lcd.tab
 .INCLUDE		calendar\calendar_user.inc
 .INCLUDE		KEYSCAN\keyscan_user.inc
+.INCLUDE		lcd\lcd_define.inc
+
 ;.INCLUDE		RFC\rfc.inc
 ;.INCLUDE		adc\adc_user.inc
 ;==========================================
@@ -129,7 +131,7 @@ C_LCDBUFFER_LENGTH:		.EQU	30D
 ;==========================================
 ;Variable RAM declare area
 ;==========================================
-lcdram:	.section	.PAGE0
+.PAGE0	;;	lcdram:	.section
 R_LcdBuff:		.DS		C_LCDBUFFER_LENGTH+1				; 5com   *48seg   5*6 30byte
 _R_LcdBuff:		.equ	R_LcdBuff
 R_Temp0:		.DS		1
@@ -175,8 +177,8 @@ _RB_Setup_Status:		.equ	RB_Setup_Status
 R_POINT			DS		1		
 _R_POINT	equ		R_POINT	
 
-.ENDS
-LCD_NRAM:			.section
+;.ENDS
+;LCD_NRAM:			.section
 
 RB_LCD_Display_change:		.ds		1
 _RB_LCD_Display_change:		.equ		RB_LCD_Display_change
@@ -226,14 +228,13 @@ D_three		equ     0x04	;1000
 R_ChargeTickDone	ds		1
 
 D_6COM		equ		05H
+
+R_SnoozeHide: .DS 1  
 .ENDS
 ;==========================================
 ; code starting 
 ;==========================================
-lcdasm:		.section		
-.INCLUDE		lcd\lcd_define.inc
-
-
+.CODE	
 ; ==============================================
 ; Function	name: F_Flash_COL_Dot 
 ; Purpose	    : Make a dot flash 
@@ -408,7 +409,11 @@ L_NoDisplayTimer:
 F_LCDDisplay_Proc:			
 		JSR		F_Flash_COL_Dot	
 		JSR		F_SWatch_Modul 		
+	
+		JSR F_DispSnoozeIcon  ; 贪睡闪烁(闹钟组图标)
+		JSR	F_DispAlarmFlash	
 		%btst	RB_Lcd_Updata_Flag,D_LcdUpdate,L_LCDDisplay
+
 		RTS
  L_LCDDisplay:				;1秒刷新
 		LDA		RB_Lcd_Updata_Flag
@@ -512,9 +517,15 @@ F_DispTime:
 	?L_HMDisplay:	
 		JSR F_Time_VU_Modul   ; 时间显示模块
 	?L_HMNoDisplay:		
+		LDA		R_OtherFlag
+		AND		#D_Timering
+		BNE		?L_ALMDisplay
+		LDA		R_OtherFlag
+		AND		#D_Alarming
+		BNE		?L_ExitDisplay
+		?L_ALMDisplay:
 		JSR F_Alarm_Modul     ; 闹钟显示模块
-
-
+	
 	?L_ExitDisplay:    
 		RTS
 		
@@ -1132,6 +1143,27 @@ F_NoDisplayAlmMinute:
 		RTS
 
 F_DispAlarmGroup:
+		; ---- 检查是否需要隐藏贪睡组图标 ----
+  		LDA R_SnoozeHide
+  	    BEQ ?NormalDisplay
+		LDA R_CurrentGroup
+		CMP R_SnoozeGroup
+		BNE ?NormalDisplay
+		; 当前组正是贪睡组且处于灭半周，强制关闭该图标并返回
+		LDA R_CurrentGroup
+		CMP #0
+		BNE ?HideGrp1
+		LDX #T_Alarm1
+		JMP F_NotDispFlag
+	?HideGrp1:
+		CMP #1
+		BNE ?HideGrp2
+		LDX #T_Alarm2
+		JMP F_NotDispFlag
+	?HideGrp2:
+		LDX #T_Alarm3
+		JMP F_NotDispFlag
+	?NormalDisplay:    
         LDA     R_CurrentGroup       ;当前选择的闹钟组(0-2)
         CLC
         ADC     #1                   ;显示组号1-3
@@ -1385,7 +1417,95 @@ F_DisplayAlarm5Days:
 		JSR	F_DispFlag
 		LDX	#T_SAT2
 		JSR	F_NotDispFlag			
-		rts		
+		RTS
+;==========================================
+; 贪睡期间闪烁当前闹钟组图标
+; 响铃时R_CurrentGroup已记录触发组,贪睡中直接复用
+;==========================================
+F_DispSnoozeIcon:
+		; 检查贪睡标志
+		LDA		R_OtherFlag
+		AND		#D_EnableSnooze
+		BEQ		?Snooze_Exit
+		; 贪睡中:用R_flash_Temp控制闪烁
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		?Snooze_ShowGroupIcon
+    ; ----- 灭半周 -----
+ 	   LDA #1
+ 	   STA R_SnoozeHide           ; 置隐藏标志		
+		; 灭半周:隐藏贪睡组闹钟图标(用R_SnoozeGroup不受FindNearestAlarm影响)
+		LDA		R_SnoozeGroup
+		CMP		#0
+		BNE		?Snooze_Off_Grp1
+		LDX		#T_Alarm1
+		JMP		F_NotDispFlag
+?Snooze_Off_Grp1:
+		CMP		#1
+		BNE		?Snooze_Off_Grp2
+		LDX		#T_Alarm2
+		JMP		F_NotDispFlag
+?Snooze_Off_Grp2:
+		LDX		#T_Alarm3
+		JMP		F_NotDispFlag
+?Snooze_ShowGroupIcon:
+		; 亮半周:显示贪睡组闹钟图标
+  ; ----- 亮半周 -----
+  		LDA #0
+  		STA R_SnoozeHide           ; 清除隐藏标志	
+		LDA		R_SnoozeGroup
+		CMP		#0
+		BNE		?Snooze_On_Grp1
+		LDX		#T_Alarm1
+		JMP		F_DispFlag
+?Snooze_On_Grp1:
+		CMP		#1
+		BNE		?Snooze_On_Grp2
+		LDX		#T_Alarm2
+		JMP		F_DispFlag
+?Snooze_On_Grp2:
+		LDX		#T_Alarm3
+		JMP		F_DispFlag
+?Snooze_Exit:
+ 		LDA #0
+  		STA R_SnoozeHide  	
+		RTS
+
+;==========================================
+; 闹钟响铃时闪烁:时分数字+冒号+闹钟组图标
+; 在F_DispTime中F_Alarm_Modul之后调用
+; 亮半周F_Alarm_Modul已写好,灭半周这里覆盖
+;==========================================
+F_DispAlarmFlash:
+			; 闹钟响铃灭半周:直接写空白,避免先写后覆盖的抖动
+		LDA		R_OtherFlag
+		AND		#D_Alarming
+		BEQ		?L_ShowNormal
+		LDA		R_OtherFlag
+		AND		#D_Timering
+		BNE		?L_ShowNormal
+		LDA		#01H
+		BIT		R_flash_Temp
+		BNE		?L_ShowNormal	; 亮半周:正常显示
+		JMP		?L_FlashBlank	; 灭半周:写空白
+	?L_FlashBlank:
+		; Alarm is OFF - hide time (show 4 dashes or nothing)
+		LDA		#0xAA        ; Nothing
+		LDY		#05h
+		JSR		F_Disp_Digital
+		JSR		F_NoDispAlarmGroup
+		LDA		#0xAA        ; Nothing
+		LDY		#07h
+		JSR		F_Disp_Digital
+		
+		LDX		#T_ACol
+		JSR		F_NotDispFlag ; Hide COL
+		JMP		?L_Exit
+			
+	?L_ShowNormal:	
+		JSR F_Alarm_Modul     ; 闹钟显示模块
+	?L_Exit:		
+		RTS
 ;Display_LingZz:
 ;;	%btst	R_OtherFlag,D_EnableSnooze,?Disp_KeepZz	
 ;		ldx	#T_Zz
@@ -1560,9 +1680,17 @@ F_SWatch_Modul:
     ; 倒计时模式处理 (Count Down)
     ; ===========================
     ; 1. 显示 T_Timer 图标 (常亮)
+	%btsf	R_OtherFlag,D_Timering,?L_ShowNormal
+	LDA		#01H
+	BIT		R_flash_Temp
+	BNE		?L_ShowNormal	; 亮半周:正常显示
+	LDX #T_Timer
+	JSR F_NotDispFlag
+	JMP	?L_Next
+	?L_ShowNormal:			
     LDX #T_Timer
     JSR F_DispFlag
-    
+    ?L_Next:
     ; 2. 不显示 T_TimerUp 图标
     LDX #T_TimerUp
     JSR F_NotDispFlag
@@ -1577,13 +1705,23 @@ F_SWatch_Modul:
     ; ===========================
     ; 正计时模式处理 (Count Up)
     ; ===========================
-    ; 1. 不显示 T_Timer 图标
-    LDX #T_Timer
-    JSR F_NotDispFlag
-    
+	%btsf	R_OtherFlag,D_Timering,?L_ShowNormal_UP
+	LDA		#01H
+	BIT		R_flash_Temp
+	BNE		?L_ShowNormal_UP	; 亮半周:正常显示
+	LDX #T_TimerUp
+	JSR F_NotDispFlag
+	
+	JMP	?L_Next_1
+	
+	?L_ShowNormal_UP:	 
     ; 2. 显示 T_TimerUp 图标 (常亮)
     LDX #T_TimerUp
     JSR F_DispFlag
+    ?L_Next_1:
+     ; 1. 不显示 T_Timer 图标
+    LDX #T_Timer
+    JSR F_NotDispFlag   
     
     ; 3. 冒号闪烁处理
     ; 检查是否处于暂停状态 (D_Timerstatus_justpause)

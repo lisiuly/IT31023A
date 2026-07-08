@@ -1,4 +1,4 @@
-lcdtab:		.section
+
 ;==============================
 C_Com0MinByteNum:	.EQU	0			;com0
 C_Com1MinByteNum:	.EQU	6			;com1

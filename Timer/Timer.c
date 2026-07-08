@@ -29,7 +29,6 @@ void F_ForwardTimer(void) {
         R_TimerFlag &= ~D_Timerstatus_just;  // 清除正计时标志
         R_SnoozeTime = C_SnoozeTime1min;  // 设置响闹时间为1分钟
         R_OtherFlag &= ~(D_ToneDIS+D_EnableSnooze+D_Alarming);
-        R_OtherFlag &= ~D_ToneDIS;
         R_OtherFlag |= (D_Alarming+D_TimeringStatus+D_Timering);      
         
         return;

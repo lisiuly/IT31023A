@@ -163,8 +163,8 @@ D_FMD_1200:					.EQU		0x000B
 ;UART_Page0RAM:    .SECTION      .PAGE0
 ;
 ;.ENDS      
-
-UART_PageNRAM:    .SECTION		
+ .PAGE0
+;UART_PageNRAM:    .SECTION		
 R_UART_Baudrate		DS	1
 _R_UART_Baudrate		.EQU	R_UART_Baudrate
 
@@ -180,8 +180,8 @@ _CLOCK_FLAG_ASR		equ		CLOCK_FLAG_ASR
 ;=============================================
 ; Code area
 ;=============================================                                  
-UART_Code:    .SECTION
-
+;UART_Code:    .SECTION
+.CODE
 ; =======================================================================================
 ; Function name : F_UART_Initial
 ; Purpose       : Initial UART H/W

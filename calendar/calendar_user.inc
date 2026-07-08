@@ -72,6 +72,7 @@ C_SnoozeMaxCount	EQU		3
 .EXTERNAL	.PAGE0		R_AlarmMinute
 .EXTERNAL	.PAGE0		R_AlarmHour
 .EXTERNAL	.PAGE0		R_CurrentGroup
+.EXTERNAL	.PAGE0		R_SnoozeGroup
 .EXTERNAL	.PAGE0		R_DispAlmDay
 .EXTERNAL	.PAGE0		R_AlarmOnOff
 .EXTERNAL	.PAGE0		R_Alarm_ENDIS_Flag

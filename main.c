@@ -258,8 +258,9 @@ int main(void)
 	F_SYS_ClearPage0();// 清零Page0内存
 	F_SYS_ClearNPage(); // 清零非分页内存
 
-	F_InitDateTime();  // 初始化时间日期
 	F_SYS_PowerOnCPUInitinal();// CPU上电初始化
+	
+	F_InitDateTime();  // 初始化时间日期	
 	F_LVD_Init();		//低电初始化
 	F_LCD_Initinal();// LCD完整上电初始化：打开偏压、电荷泵、VLCD和显示驱动
 	F_InitPort();// ;端口初始化

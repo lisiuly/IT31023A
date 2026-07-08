@@ -4,33 +4,38 @@ overlapgroup Z_LEAF_OLP: OSEC0, OSEC1, OSEC2, OSEC3, OSEC4, OSEC5, OSEC6, OSEC7,
 
 locate: PAGE0 at 00h reference
 locate: Z_LEAF_OLP after PAGE0
-;locate: Z_OLP_BEGIN after Z_LEAF_OLP
-; To add user-defined Zpage sections:
-; 1. Replace the previous line, "locate: Z_OLP_BEGIN after Z_LEAF_OLP"
-; 2. Add user-defined Zpage sections as below
-locate: Z_User_Calendar after Z_LEAF_OLP
-locate: lcdram after Z_User_Calendar
-;locate: RAM_RFC_START after lcdram
-;locate: RAM_RFC_Calc after RAM_RFC_START
-;locate: RAM_adc_page0 after RAM_RFC_Calc
-locate: keyscanram after lcdram
-locate: ADC_RAM after keyscanram
-locate: Z_OLP_BEGIN after ADC_RAM
+locate: Z_OLP_BEGIN after Z_LEAF_OLP
+;;locate: Z_OLP_BEGIN after Z_LEAF_OLP
+;; To add user-defined Zpage sections:
+;; 1. Replace the previous line, "locate: Z_OLP_BEGIN after Z_LEAF_OLP"
+;; 2. Add user-defined Zpage sections as below
+;locate: Z_User_Calendar after Z_LEAF_OLP
+;locate: lcdram after Z_User_Calendar
+;;locate: RAM_RFC_START after lcdram
+;;locate: RAM_RFC_Calc after RAM_RFC_START
+;;locate: RAM_adc_page0 after RAM_RFC_Calc
+;locate: keyscanram after lcdram
+;locate: ADC_RAM after keyscanram
+;locate: Z_OLP_BEGIN after ADC_RAM
+
 locate: END_OF_ZSEC at 100h reference
 
 locate: NSEC at 200h
 locate: NSEC_I after NSEC
-;locate: N_OLP_BEGIN after NSEC_I
-; To add user-defined Npage sections:
-; 1. Replace the previous line, "locate: N_OLP_BEGIN after NSEC_I"
-; 2. Add user-defined Npage sections as below
 locate: N_User_calendar after NSEC_I
-locate: LCD_NRAM after N_User_calendar
-;locate: ...
-locate: UART_PageNRAM after LCD_NRAM
+locate: N_OLP_BEGIN after N_User_calendar
 
-locate: N_OLP_BEGIN after UART_PageNRAM
-
+;;locate: N_OLP_BEGIN after NSEC_I
+;; To add user-defined Npage sections:
+;; 1. Replace the previous line, "locate: N_OLP_BEGIN after NSEC_I"
+;; 2. Add user-defined Npage sections as below
+;locate: N_User_calendar after NSEC_I
+;locate: LCD_NRAM after N_User_calendar
+;;locate: ...
+;locate: UART_PageNRAM after LCD_NRAM
+;
+;locate: N_OLP_BEGIN after UART_PageNRAM
+;
 
 locate: END_OF_NSEC at C00h reference
 
@@ -41,18 +46,20 @@ locate: XCONST after GSFINAL
 locate: INIT_TAB after XCONST
 locate: CODE after INIT_TAB
 locate: NSEC_INIT after CODE
-locate: ROM_calendar after NSEC_INIT
-locate: lcdasm after ROM_calendar
-locate: lcdtab after lcdasm
-;locate: Calculation_driv	after	lcdtab
-;locate: RFC_Driver	after	Calculation_driv
-;locate: RFC	after	RFC_Driver
-;locate: RFC_Table	after	RFC
-;locate: ADC_Deriver	after	RFC_Table
-locate: keyscan	after	lcdtab
-locate: UART_Code	after	keyscan
-locate: ADC_Code	after	UART_Code
-locate: GP_MATH after ADC_Code optional
+
+;locate: ROM_calendar after NSEC_INIT
+;locate: lcdasm after ROM_calendar
+;locate: lcdtab after lcdasm
+;;locate: Calculation_driv	after	lcdtab
+;;locate: RFC_Driver	after	Calculation_driv
+;;locate: RFC	after	RFC_Driver
+;;locate: RFC_Table	after	RFC
+;;locate: ADC_Deriver	after	RFC_Table
+;locate: keyscan	after	lcdtab
+;locate: UART_Code	after	keyscan
+;locate: ADC_Code	after	UART_Code
+
+locate: GP_MATH after NSEC_INIT optional
 
 locate: IRQ_VEC_00 at FFC0 optional
 locate: IRQ_VEC_01 at FFC2 optional

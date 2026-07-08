@@ -117,10 +117,12 @@ C_HideLow:				.EQU	%11110000
 .PUBLIC		_R_IconCount
 .PUBLIC		R_SnoozeCount
 .PUBLIC		_R_SnoozeCount
+.PUBLIC		R_SnoozeGroup
+.PUBLIC		_R_SnoozeGroup
 ;==========================================
 ;Variable RAM declare area
 ;==========================================
-Z_User_Calendar:		.section	.PAGE0
+.PAGE0
 R_Week:			.DS		1
 _R_Week:		.EQU	R_Week
 R_Month:		.DS		1
@@ -175,6 +177,8 @@ _R_AlarmHour:		.equ	R_AlarmHour
 
 R_CurrentGroup: 	ds	1		;响闹组别(0-2)
 _R_CurrentGroup:	.equ	R_CurrentGroup
+R_SnoozeGroup:	ds	1		;贪睡中的闹钟组(0-2),响铃时记录
+_R_SnoozeGroup:	.equ	R_SnoozeGroup
 R_DispAlmDay	ds	3		;3组门闹钟的类型，0为每天，1为单休，2为双休
 _R_DispAlmDay		.equ	R_DispAlmDay
 R_AlarmOnOff	ds  1		;bit0-2对应组开关状态
@@ -207,17 +211,17 @@ R_Second_Temp		ds	1
 _R_Second_Temp		equ		R_Second_Temp
 
 .ENDS
-;===========================================================
+;;===========================================================
+;N_User_calendar:			.section
 N_User_calendar:			.section
-
 R_TEST_Temp:		.DS		1
 .ENDS
 ;==========================================
 ; code starting 
 ;==========================================
 
-
-ROM_calendar:			.SECTION
+.CODE
+;ROM_calendar:			.SECTION
 
 ;;======================================
 ;Function Name:  F_24HourClock
@@ -1290,7 +1294,7 @@ T_WeekAdjust_Leap_END:
 ;表格中：第一个8bit高4位表示农历年闰月的月数，低4bit表示1－4月大小月的标志0为小月1为大月
 ;		 第二个8bit全部8bit表示农历月的大小5－12月，doushi 对应阳历年的阴历月份
 ;		 第三个8bit bit7 表示13农历月大小。剩下bit6/bit5表示农历年所在的月bit4春节所在日的高位，低4bit表示春节的日低位
-T_year_code_TAB:
+;T_year_code_TAB:
 ;DB 04H,AeH,53H ;;1901 0
 ;DB 0AH,57H,48H ;;1902 3
 ;DB 55H,26H,BdH ;;1903 6
@@ -1340,161 +1344,161 @@ T_year_code_TAB:
 ;DB 09H,2dH,42H ;;1946
 ;DB 2CH,95H,B6H ;;1947
 ;DB 0AH,95H,4AH ;;1948
-	
-DB 7BH,4AH,BdH ;;1949
-DB 06H,CAH,51H ;;1950
-DB 0BH,55H,46H ;;1951
-DB 55H,5AH,BBH ;;1952
-DB 04H,dAH,4eH ;;1953
-DB 0AH,5BH,43H ;;1954
-DB 35H,2BH,B8H ;;1955
-DB 05H,2BH,4CH ;;1956
-DB 8AH,95H,3fH ;;1957
-DB 0eH,95H,52H ;;1958
-DB 06H,AAH,48H ;;1959
-DB 7AH,d5H,3CH ;;1960
-DB 0AH,B5H,4fH ;;1961
-DB 04H,B6H,45H ;;1962
-DB 4AH,57H,39H ;;1963
-DB 0AH,57H,4dH ;;1964
-DB 05H,26H,42H ;;1965
-DB 3eH,93H,35H ;;1966
-DB 0dH,95H,49H ;;1967
-DB 75H,AAH,BeH ;;1968
-DB 05H,6AH,51H ;;1969
-DB 09H,6dH,46H ;;1970
-DB 54H,AeH,BBH ;;1971
-DB 04H,AdH,4fH ;;1972
-DB 0AH,4dH,43H ;;1973
-DB 4dH,26H,B7H ;;1974
-DB 0dH,25H,4BH ;;1975
-DB 8dH,52H,BfH ;;1976
-DB 0BH,54H,52H ;;1977
-DB 0BH,6AH,47H ;;1978
-DB 69H,6dH,3CH ;;1979
-DB 09H,5BH,50H ;;1980
-DB 04H,9BH,45H ;;1981
-DB 4AH,4BH,B9H ;;1982
-DB 0AH,4BH,4dH ;;1983
-DB ABH,25H,C2H ;;1984
-DB 06H,A5H,54H ;;1985 252
-DB 06H,d4H,49H ;;1986 0
-DB 6AH,dAH,3dH ;;1987 3
-DB 0AH,B6H,51H ;;1988 6
-DB 09H,37H,46H ;;1989 9
-DB 54H,97H,BBH ;;1990 12
-DB 04H,97H,4fH ;;1991 15
-DB 06H,4BH,44H ;;1992 18
-DB 36H,A5H,37H ;;1993 21
-DB 0eH,A5H,4AH ;;1994 24
-DB 86H,B2H,BfH ;;1995 27
-DB 05H,ACH,53H ;;1996 30
-DB 0AH,B6H,47H ;;1997 33
-DB 59H,36H,BCH ;;1998 36
-DB 09H,2eH,50H ;;1999 39
-T_year_code_TAB_END:
-T_year_code_TAB1:
-DB 0CH,96H,45H ;;2000 42
-DB 4dH,4AH,B8H ;;2001 45
-DB 0dH,4AH,4CH ;;2002 48
-DB 0dH,A5H,41H ;;2003 51
-DB 25H,AAH,B6H ;;2004 54
-DB 05H,6AH,49H ;;2005 57
-DB 7AH,AdH,BdH ;;2006 60
-DB 02H,5dH,52H ;;2007 63
-DB 09H,2dH,47H ;;2008 66
-DB 5CH,95H,BAH ;;2009 69
-DB 0AH,95H,4eH ;;2010 72
-DB 0BH,4AH,43H ;;2011 75
-DB 4BH,55H,37H ;;2012 78
-DB 0AH,d5H,4AH ;;2013 81
-DB 95H,5AH,BfH ;;2014 84
-DB 04H,BAH,53H ;;2015 87
-DB 0AH,5BH,48H ;;2016 90
-DB 65H,2BH,BCH ;;2017 93
-DB 05H,2BH,50H ;;2018 96
-DB 0AH,93H,45H ;;2019 99
-DB 47H,4AH,B9H ;;2020 101
-DB 06H,AAH,4CH ;;2021 104
-DB 0AH,d5H,41H ;;2022 107
-DB 24H,dAH,B6H ;;2023 110
-DB 04H,B6H,4AH ;;2024 103
-DB 69H,57H,3dH ;;2025 106
-DB 0AH,4eH,51H ;;2026 109
-DB 0dH,26H,46H ;;2027 111
-DB 5eH,93H,3AH ;;2028 114
-DB 0dH,53H,4dH ;;2029 117
-DB 05H,AAH,43H ;;2030 120
-DB 36H,B5H,37H ;;2031 123
-DB 09H,6dH,4BH ;;2032 126
-DB B4H,AeH,BfH ;;2033 129
-DB 04H,AdH,53H ;;2034 132
-DB 0AH,4dH,48H ;;2035 135
-DB 6dH,25H,BCH ;;2036 138
-DB 0dH,25H,4fH ;;2037 141
-DB 0dH,52H,44H ;;2038 144
-DB 5dH,AAH,38H ;;2039 147
-DB 0BH,5AH,4CH ;;2040 150
-DB 05H,6dH,41H ;;2041 153
-DB 24H,AdH,B6H ;;2042 156
-DB 04H,9BH,4AH ;;2043 159
-DB 7AH,4BH,BeH ;;2044 162
-DB 0AH,4BH,51H ;;2045 165
-DB 0AH,A5H,46H ;;2046 168
-DB 5BH,52H,BAH ;;2047 171
-DB 06H,d2H,4eH ;;2048 174
-DB 0AH,dAH,42H ;;2049 177
-DB 35H,5BH,37H ;;2050 180
-DB 09H,37H,4BH ;;2051 183 
-DB 84H,97H,C1H ;;2052 186
-DB 04H,97H,53H ;;2053 189
-DB 06H,4BH,48H ;;2054 192
-DB 66H,A5H,3CH ;;2055 195
-DB 0eH,A5H,4fH ;;2056 198
-DB 06H,B2H,44H ;;2057 201
-DB 4AH,B6H,38H ;;2058 204
-DB 0AH,AeH,4CH ;;2059 207
-DB 09H,2eH,42H ;;2060 210
-DB 3CH,97H,35H ;;2061 213
-DB 0CH,96H,49H ;;2062 216
-DB 7dH,4AH,BdH ;;2063 219
-DB 0dH,4AH,51H ;;2064 222
-DB 0dH,A5H,45H ;;2065 225
-DB 55H,AAH,BAH ;;2066 228
-DB 05H,6AH,4eH ;;2067 231
-DB 0AH,6dH,43H ;;2068 234
-DB 45H,2eH,B7H ;;2069 237
-DB 05H,2dH,4BH ;;2070 240
-DB 8AH,95H,BfH ;;2071 243
-DB 0AH,95H,53H ;;2072 246
-DB 0BH,4AH,47H ;;2073 249
-DB 6BH,55H,3BH ;;2074 252
-DB 0AH,d5H,4fH ;;2075 255
-DB 05H,5AH,45H ;;2076
-DB 4AH,5dH,38H ;;2077
-DB 0AH,5BH,4CH ;;2078
-DB 05H,2BH,42H ;;2079
-DB 3AH,93H,B6H ;;2080
-DB 06H,93H,49H ;;2081
-DB 77H,29H,BdH ;;2082
-DB 06H,AAH,51H ;;2083
-DB 0AH,d5H,46H ;;2084
-DB 54H,dAH,BAH ;;2085
-DB 04H,B6H,4eH ;;2086
-DB 0AH,57H,43H ;;2087
-DB 45H,27H,38H ;;2088
-DB 0dH,26H,4AH ;;2089
-DB 8eH,93H,3eH ;;2090
-DB 0dH,52H,52H ;;2091
-DB 0dH,AAH,47H ;;2092
-DB 66H,B5H,3BH ;;2093
-DB 05H,6dH,4fH ;;2094
-DB 04H,AeH,45H ;;2095
-DB 4AH,4eH,B9H ;;2096
-DB 0AH,4dH,4CH ;;2097
-DB 0dH,15H,41H ;;2098
-DB 2dH,92H,B5H ;;2099
-T_year_code_TAB1_END:
+;	
+;DB 7BH,4AH,BdH ;;1949
+;DB 06H,CAH,51H ;;1950
+;DB 0BH,55H,46H ;;1951
+;DB 55H,5AH,BBH ;;1952
+;DB 04H,dAH,4eH ;;1953
+;DB 0AH,5BH,43H ;;1954
+;DB 35H,2BH,B8H ;;1955
+;DB 05H,2BH,4CH ;;1956
+;DB 8AH,95H,3fH ;;1957
+;DB 0eH,95H,52H ;;1958
+;DB 06H,AAH,48H ;;1959
+;DB 7AH,d5H,3CH ;;1960
+;DB 0AH,B5H,4fH ;;1961
+;DB 04H,B6H,45H ;;1962
+;DB 4AH,57H,39H ;;1963
+;DB 0AH,57H,4dH ;;1964
+;DB 05H,26H,42H ;;1965
+;DB 3eH,93H,35H ;;1966
+;DB 0dH,95H,49H ;;1967
+;DB 75H,AAH,BeH ;;1968
+;DB 05H,6AH,51H ;;1969
+;DB 09H,6dH,46H ;;1970
+;DB 54H,AeH,BBH ;;1971
+;DB 04H,AdH,4fH ;;1972
+;DB 0AH,4dH,43H ;;1973
+;DB 4dH,26H,B7H ;;1974
+;DB 0dH,25H,4BH ;;1975
+;DB 8dH,52H,BfH ;;1976
+;DB 0BH,54H,52H ;;1977
+;DB 0BH,6AH,47H ;;1978
+;DB 69H,6dH,3CH ;;1979
+;DB 09H,5BH,50H ;;1980
+;DB 04H,9BH,45H ;;1981
+;DB 4AH,4BH,B9H ;;1982
+;DB 0AH,4BH,4dH ;;1983
+;DB ABH,25H,C2H ;;1984
+;DB 06H,A5H,54H ;;1985 252
+;DB 06H,d4H,49H ;;1986 0
+;DB 6AH,dAH,3dH ;;1987 3
+;DB 0AH,B6H,51H ;;1988 6
+;DB 09H,37H,46H ;;1989 9
+;DB 54H,97H,BBH ;;1990 12
+;DB 04H,97H,4fH ;;1991 15
+;DB 06H,4BH,44H ;;1992 18
+;DB 36H,A5H,37H ;;1993 21
+;DB 0eH,A5H,4AH ;;1994 24
+;DB 86H,B2H,BfH ;;1995 27
+;DB 05H,ACH,53H ;;1996 30
+;DB 0AH,B6H,47H ;;1997 33
+;DB 59H,36H,BCH ;;1998 36
+;DB 09H,2eH,50H ;;1999 39
+;T_year_code_TAB_END:
+;T_year_code_TAB1:
+;DB 0CH,96H,45H ;;2000 42
+;DB 4dH,4AH,B8H ;;2001 45
+;DB 0dH,4AH,4CH ;;2002 48
+;DB 0dH,A5H,41H ;;2003 51
+;DB 25H,AAH,B6H ;;2004 54
+;DB 05H,6AH,49H ;;2005 57
+;DB 7AH,AdH,BdH ;;2006 60
+;DB 02H,5dH,52H ;;2007 63
+;DB 09H,2dH,47H ;;2008 66
+;DB 5CH,95H,BAH ;;2009 69
+;DB 0AH,95H,4eH ;;2010 72
+;DB 0BH,4AH,43H ;;2011 75
+;DB 4BH,55H,37H ;;2012 78
+;DB 0AH,d5H,4AH ;;2013 81
+;DB 95H,5AH,BfH ;;2014 84
+;DB 04H,BAH,53H ;;2015 87
+;DB 0AH,5BH,48H ;;2016 90
+;DB 65H,2BH,BCH ;;2017 93
+;DB 05H,2BH,50H ;;2018 96
+;DB 0AH,93H,45H ;;2019 99
+;DB 47H,4AH,B9H ;;2020 101
+;DB 06H,AAH,4CH ;;2021 104
+;DB 0AH,d5H,41H ;;2022 107
+;DB 24H,dAH,B6H ;;2023 110
+;DB 04H,B6H,4AH ;;2024 103
+;DB 69H,57H,3dH ;;2025 106
+;DB 0AH,4eH,51H ;;2026 109
+;DB 0dH,26H,46H ;;2027 111
+;DB 5eH,93H,3AH ;;2028 114
+;DB 0dH,53H,4dH ;;2029 117
+;DB 05H,AAH,43H ;;2030 120
+;DB 36H,B5H,37H ;;2031 123
+;DB 09H,6dH,4BH ;;2032 126
+;DB B4H,AeH,BfH ;;2033 129
+;DB 04H,AdH,53H ;;2034 132
+;DB 0AH,4dH,48H ;;2035 135
+;DB 6dH,25H,BCH ;;2036 138
+;DB 0dH,25H,4fH ;;2037 141
+;DB 0dH,52H,44H ;;2038 144
+;DB 5dH,AAH,38H ;;2039 147
+;DB 0BH,5AH,4CH ;;2040 150
+;DB 05H,6dH,41H ;;2041 153
+;DB 24H,AdH,B6H ;;2042 156
+;DB 04H,9BH,4AH ;;2043 159
+;DB 7AH,4BH,BeH ;;2044 162
+;DB 0AH,4BH,51H ;;2045 165
+;DB 0AH,A5H,46H ;;2046 168
+;DB 5BH,52H,BAH ;;2047 171
+;DB 06H,d2H,4eH ;;2048 174
+;DB 0AH,dAH,42H ;;2049 177
+;DB 35H,5BH,37H ;;2050 180
+;DB 09H,37H,4BH ;;2051 183 
+;DB 84H,97H,C1H ;;2052 186
+;DB 04H,97H,53H ;;2053 189
+;DB 06H,4BH,48H ;;2054 192
+;DB 66H,A5H,3CH ;;2055 195
+;DB 0eH,A5H,4fH ;;2056 198
+;DB 06H,B2H,44H ;;2057 201
+;DB 4AH,B6H,38H ;;2058 204
+;DB 0AH,AeH,4CH ;;2059 207
+;DB 09H,2eH,42H ;;2060 210
+;DB 3CH,97H,35H ;;2061 213
+;DB 0CH,96H,49H ;;2062 216
+;DB 7dH,4AH,BdH ;;2063 219
+;DB 0dH,4AH,51H ;;2064 222
+;DB 0dH,A5H,45H ;;2065 225
+;DB 55H,AAH,BAH ;;2066 228
+;DB 05H,6AH,4eH ;;2067 231
+;DB 0AH,6dH,43H ;;2068 234
+;DB 45H,2eH,B7H ;;2069 237
+;DB 05H,2dH,4BH ;;2070 240
+;DB 8AH,95H,BfH ;;2071 243
+;DB 0AH,95H,53H ;;2072 246
+;DB 0BH,4AH,47H ;;2073 249
+;DB 6BH,55H,3BH ;;2074 252
+;DB 0AH,d5H,4fH ;;2075 255
+;DB 05H,5AH,45H ;;2076
+;DB 4AH,5dH,38H ;;2077
+;DB 0AH,5BH,4CH ;;2078
+;DB 05H,2BH,42H ;;2079
+;DB 3AH,93H,B6H ;;2080
+;DB 06H,93H,49H ;;2081
+;DB 77H,29H,BdH ;;2082
+;DB 06H,AAH,51H ;;2083
+;DB 0AH,d5H,46H ;;2084
+;DB 54H,dAH,BAH ;;2085
+;DB 04H,B6H,4eH ;;2086
+;DB 0AH,57H,43H ;;2087
+;DB 45H,27H,38H ;;2088
+;DB 0dH,26H,4AH ;;2089
+;DB 8eH,93H,3eH ;;2090
+;DB 0dH,52H,52H ;;2091
+;DB 0dH,AAH,47H ;;2092
+;DB 66H,B5H,3BH ;;2093
+;DB 05H,6dH,4fH ;;2094
+;DB 04H,AeH,45H ;;2095
+;DB 4AH,4eH,B9H ;;2096
+;DB 0AH,4dH,4CH ;;2097
+;DB 0dH,15H,41H ;;2098
+;DB 2dH,92H,B5H ;;2099
+;T_year_code_TAB1_END:
 ;月份数据表
 T_day_code_TAB1:
 DB 00H,1FH,3BH,5AH,78H,97H,b5H,d4H,f3H,10H,2fH,4DH	;11h-1, 30h-1 ,4EH-1
@@ -1794,7 +1798,6 @@ F_EnCheckAlarm:
 	    CPX #3
    	BCC F_EnCheckAlarm
    ?L_SleepSnooze: 	; 贪睡状态检查
-
 	 	LDA R_OtherFlag
 		AND	#D_EnableSnooze
 		BEQ	$+5		
@@ -1849,12 +1852,9 @@ _Disable_Alarm:
 	; 保存D_Timering状态用于区分闹钟/计时
 	%btst	R_OtherFlag,D_Timering,?L_Exit
 	; 自动贪睡:仅闹钟(非计时器)且次数>0
-	LDA		R_Calendar_Temp0
-	BNE		Exit_ALMCheck
 	LDA		R_SnoozeCount
-	BEQ		Exit_ALMCheck
-	DEC		R_SnoozeCount
-	BEQ		Exit_ALMCheck
+	CMP		#C_SnoozeMaxCount
+	BNE		?L_Exit
 	LDA		#C_SnoozeInterval
 	STA		R_SleepTime
 	%bits	R_OtherFlag,D_EnableSnooze
@@ -1874,6 +1874,9 @@ L_LoadAlarming:
 		 STA		R_SnoozeCount
 		 STA		R_SleepTime
 		 %bitr	R_OtherFlag,D_EnableSnooze
+		 ; 记录本次响铃的闹钟组,贪睡闪烁用
+		 LDA		R_CurrentGroup
+		 STA		R_SnoozeGroup
 	     LDA		#C_SnoozeTime1min
 		 STA		R_SnoozeTime
 		 JSR		Voice_PowerOn_Noxiaonao	 
@@ -1882,22 +1885,32 @@ L_LoadAlarming:
 		; 首次响铃:初始化贪睡次数=3
 		LDA		#C_SnoozeMaxCount
 		STA		R_SnoozeCount
-
 		CLI
 		RTS
 		
 
 F_CheckSnoozeAlarm:			;贪睡时间检查
 		LDA		R_SleepTime
-		BEQ		Check_SnoozeTrigger  ;时间到，触发贪睡
-		RTS  
-	Check_SnoozeTrigger:
+		BEQ		?Check_SnoozeTrigger  ;时间到，触发贪睡
+		DEC		R_SleepTime
+		BNE		?L_Exit
+	?Check_SnoozeTrigger:
 		; 贪睡时间到:次数>0则重新响铃
 		LDA		R_SnoozeCount
 		BEQ		?L_Exit
-		%bitr	R_OtherFlag,D_EnableSnooze
-		JSR		L_LoadAlarming			
-
+		DEC		R_SnoozeCount	
+		LDA		#6
+		STA		R_SleepTime	
+		LDA		R_SnoozeCount
+		BNE		?L_LoadAlarming
+		%bitr	R_OtherFlag,D_EnableSnooze		
+?L_LoadAlarming:			
+	     LDA	#C_SnoozeTime1min
+		 STA	R_SnoozeTime
+		 JSR	Voice_PowerOn_Noxiaonao	 
+		 %bitr	R_OtherFlag,D_ToneDIS	
+		%bits	R_OtherFlag,(D_Alarming+D_AlarmingStatus)		
+		CLI
 	?L_Exit:	
 		RTS	
 		
