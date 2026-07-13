@@ -1235,7 +1235,6 @@ _F_JudgeWeek:
 ;	BEQ		?L_XiaoYue#
 ;	LDA		#30d
 ;	JMP		?L_DaYue#
-;?L_XiaoYue#:
 ;	LDA		#29d
 ;?L_DaYue#:	
 ;	RTS
@@ -1851,11 +1850,10 @@ _Disable_Alarm:
 	BNE		Exit_ALMCheck
 	; 保存D_Timering状态用于区分闹钟/计时
 	%btst	R_OtherFlag,D_Timering,?L_Exit
-	; 自动贪睡:仅闹钟(非计时器)且次数>0
+	; 自动贪睡:仅闹钟(非计时器)且剩余次数>0
 	LDA		R_SnoozeCount
-	CMP		#C_SnoozeMaxCount
-	BNE		?L_Exit
-	LDA		#C_SnoozeInterval
+	BEQ		?L_Exit
+	LDA		#6
 	STA		R_SleepTime
 	%bits	R_OtherFlag,D_EnableSnooze
 	LDA		#D_UI_Time
@@ -1890,6 +1888,10 @@ L_LoadAlarming:
 		
 
 F_CheckSnoozeAlarm:			;贪睡时间检查
+		; 响铃期间不递减贪睡计时,保证静音间隔准确
+		LDA		R_OtherFlag
+		AND		#D_Alarming
+		BNE		?L_Exit
 		LDA		R_SleepTime
 		BEQ		?Check_SnoozeTrigger  ;时间到，触发贪睡
 		DEC		R_SleepTime
@@ -1897,7 +1899,7 @@ F_CheckSnoozeAlarm:			;贪睡时间检查
 	?Check_SnoozeTrigger:
 		; 贪睡时间到:次数>0则重新响铃
 		LDA		R_SnoozeCount
-		BEQ		?L_Exit
+		BEQ		?L_ClearSnooze		; 次数用完,清除贪睡标志防止图标残留闪烁
 		DEC		R_SnoozeCount	
 		LDA		#6
 		STA		R_SleepTime	
@@ -1905,12 +1907,18 @@ F_CheckSnoozeAlarm:			;贪睡时间检查
 		BNE		?L_LoadAlarming
 		%bitr	R_OtherFlag,D_EnableSnooze		
 ?L_LoadAlarming:			
+		 ; 将当前组设为贪睡组，确保响铃闪烁显示正确的闹钟组
+		 LDA		R_SnoozeGroup
+		 STA		R_CurrentGroup
 	     LDA	#C_SnoozeTime1min
 		 STA	R_SnoozeTime
 		 JSR	Voice_PowerOn_Noxiaonao	 
 		 %bitr	R_OtherFlag,D_ToneDIS	
 		%bits	R_OtherFlag,(D_Alarming+D_AlarmingStatus)		
 		CLI
+		JMP		?L_Exit			; 响铃已启动,跳过清除贪睡标志
+?L_ClearSnooze:
+		%bitr	R_OtherFlag,D_EnableSnooze	; 次数用完,清除贪睡标志
 	?L_Exit:	
 		RTS	
 		

@@ -410,8 +410,8 @@ F_LCDDisplay_Proc:
 		JSR		F_Flash_COL_Dot	
 		JSR		F_SWatch_Modul 		
 	
-		JSR F_DispSnoozeIcon  ; 贪睡闪烁(闹钟组图标)
-		JSR	F_DispAlarmFlash	
+		JSR	F_DispAlarmFlash      ; 闹钟显示（先执行）
+		JSR F_DispSnoozeIcon      ; 贪睡闪烁覆盖（后执行，有最终决定权）
 		%btst	RB_Lcd_Updata_Flag,D_LcdUpdate,L_LCDDisplay
 
 		RTS
@@ -1015,6 +1015,15 @@ F_Alarm_Modul:
 		BNE		?L_Next
 		LDA		R_SetBack
 		BNE		?L_Next
+		; ---- 响铃或贪睡中:强制锁定显示当前响闹组 ----
+		LDA		R_OtherFlag
+		AND		#(D_Alarming+D_EnableSnooze)
+		BEQ		?FindNearest
+		LDA		R_SnoozeGroup
+		STA		R_CurrentGroup
+		JMP		?L_Next
+?FindNearest:
+		; %btst	R_OtherFlag,D_Alarming,?L_Next		; 原逻辑:响铃中跳过最近查找(已整合到上面)
 		LDA		R_AlmTimeFlashSet
 		BNE		$+5	
 		JSR		FindNearestAlarm
@@ -1143,59 +1152,94 @@ F_NoDisplayAlmMinute:
 		RTS
 
 F_DispAlarmGroup:
-		; ---- 检查是否需要隐藏贪睡组图标 ----
-  		LDA R_SnoozeHide
-  	    BEQ ?NormalDisplay
-		LDA R_CurrentGroup
-		CMP R_SnoozeGroup
-		BNE ?NormalDisplay
-		; 当前组正是贪睡组且处于灭半周，强制关闭该图标并返回
-		LDA R_CurrentGroup
-		CMP #0
-		BNE ?HideGrp1
-		LDX #T_Alarm1
-		JMP F_NotDispFlag
+		; ---- 预计算贪睡保护组（R_TempBuf+5 = 0xFF表示无保护，0/1/2表示受保护组）----
+		LDA		R_OtherFlag
+		AND		#D_EnableSnooze
+		BEQ		?NoSnoozeProtect
+		LDA		R_SnoozeGroup
+		STA		R_TempBuf+5
+		JMP		?CheckHide
+	?NoSnoozeProtect:
+		LDA		#0xFF
+		STA		R_TempBuf+5
+	?CheckHide:
+		; ---- 灭半周且当前组==贪睡组时，隐藏该图标并返回 ----
+  		LDA		R_SnoozeHide
+  	    BEQ		?NormalDisplay
+		LDA		R_CurrentGroup
+		CMP		R_SnoozeGroup
+		BNE		?NormalDisplay
+		LDA		R_CurrentGroup
+		CMP		#0
+		BNE		?HideGrp1
+		LDX		#T_Alarm1
+		JMP		F_NotDispFlag
 	?HideGrp1:
-		CMP #1
-		BNE ?HideGrp2
-		LDX #T_Alarm2
-		JMP F_NotDispFlag
+		CMP		#1
+		BNE		?HideGrp2
+		LDX		#T_Alarm2
+		JMP		F_NotDispFlag
 	?HideGrp2:
-		LDX #T_Alarm3
-		JMP F_NotDispFlag
+		LDX		#T_Alarm3
+		JMP		F_NotDispFlag
 	?NormalDisplay:    
         LDA     R_CurrentGroup       ;当前选择的闹钟组(0-2)
         CLC
         ADC     #1                   ;显示组号1-3
         STA     R_Temp0       
-        ;显示组号数字
         LDA     R_Temp0
-		CMP     #1                  ;判断数字1
+		CMP     #1
 		BEQ     ?Display_1
-		CMP     #2                  ;判断数字2
+		CMP     #2
 		BEQ     ?Display_2
-		CMP     #3                  ;判断数字3
+		CMP     #3
 		BEQ     ?Display_3
-		RTS                         ;非1-3直接返回	
-	?Display_1:
+		RTS
+	?Display_1:                      ; 当前组=0: 显1, 隐2/3(贪睡保护跳过)
 		LDX		#T_Alarm1
 		JSR     F_DispFlag
+		LDA		R_TempBuf+5
+		CMP		#1
+		BEQ		?D1_S2
 		LDX     #T_Alarm2           
 		JSR     F_NotDispFlag
+	?D1_S2:
+		LDA		R_TempBuf+5
+		CMP		#2
+		BEQ		?D1_S3
 		LDX     #T_Alarm3           
 		JMP     F_NotDispFlag
-	?Display_2:
+	?D1_S3:
+		RTS
+	?Display_2:                      ; 当前组=1: 显2, 隐1/3(贪睡保护跳过)
+		LDA		R_TempBuf+5
+		CMP		#0
+		BEQ		?D2_S1
 		LDX		#T_Alarm1
 		JSR     F_NotDispFlag
+	?D2_S1:
 		LDX     #T_Alarm2           
 		JSR     F_DispFlag
+		LDA		R_TempBuf+5
+		CMP		#2
+		BEQ		?D2_S3
 		LDX     #T_Alarm3           
 		JMP     F_NotDispFlag
-	?Display_3:
+	?D2_S3:
+		RTS
+	?Display_3:                      ; 当前组=2: 显3, 隐1/2(贪睡保护跳过)
+		LDA		R_TempBuf+5
+		CMP		#0
+		BEQ		?D3_S1
 		LDX		#T_Alarm1
 		JSR     F_NotDispFlag
+	?D3_S1:
+		LDA		R_TempBuf+5
+		CMP		#1
+		BEQ		?D3_S2
 		LDX     #T_Alarm2           
 		JSR     F_NotDispFlag
+	?D3_S2:
 		LDX     #T_Alarm3           
 		JMP     F_DispFlag
 		
@@ -1234,8 +1278,12 @@ FindNearestAlarm:
 
 	; --- 检查星期匹配
 	stx R_TempBuf+0           ; 临时存储组号
-	lda R_DispAlmDay,x
-	jsr F_CheckAlarmDayType ; 你的现有函数
+	lda R_CurrentGroup        ; 保存原 R_CurrentGroup（0xFF 哨兵值）
+	sta R_TempBuf+3           ; 暂存到 TempBuf+3
+	STX R_CurrentGroup        ; 设置当前组号供 F_CheckAlarmDayType 使用
+	jsr F_CheckAlarmDayType   ; 检查星期匹配（C=1 表示匹配）
+	lda R_TempBuf+3           ; 恢复原 R_CurrentGroup
+	sta R_CurrentGroup
 	ldx R_TempBuf+0           ; 恢复组号
 	bcc ?NextGroup
 
@@ -1423,6 +1471,10 @@ F_DisplayAlarm5Days:
 ; 响铃时R_CurrentGroup已记录触发组,贪睡中直接复用
 ;==========================================
 F_DispSnoozeIcon:
+		; 响铃中不显示贪睡闪烁(闹钟/计时器响铃会刷掉贪睡状态)
+		LDA		R_OtherFlag
+		AND		#(D_Alarming+D_Timering)
+		BNE		?Snooze_Exit
 		; 检查贪睡标志
 		LDA		R_OtherFlag
 		AND		#D_EnableSnooze

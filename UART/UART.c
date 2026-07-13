@@ -400,7 +400,9 @@ static void F_Set_Alarm(void)
 		unsigned char alarm_index = alarm_num - 1;
       // 存储时间
         R_AlarmHour[alarm_index] = UART_RxBuffer[5];
-        R_AlarmMinute[alarm_index] = UART_RxBuffer[6];      
+        R_AlarmMinute[alarm_index] = UART_RxBuffer[6];
+        // 语音设置自动打开该闹钟
+        R_AlarmOnOff |= (1 << alarm_index);
         // 设置当前组别
         R_CurrentGroup = alarm_index;
         R_Uart_UI = 10;
@@ -1302,6 +1304,8 @@ void Check_UartData(void)
 		{
 		 if(CLOCK_FLAG_ASR == 1){		
 		 			Voice_SendAckFrame();
+				/* 收到语音指令说明用户已醒,清除贪睡状态 */
+
 				if(UART_RxBuffer[2] == 0) //固定为零则通过
 				{
 					for(i=0;i<Function_Total;i++)
@@ -1312,6 +1316,9 @@ void Check_UartData(void)
 							index = 0;
 							FunP[i]();
 							User_AsrTime = asrTime;
+				R_OtherFlag &= ~D_EnableSnooze;
+				R_SnoozeCount = 0;
+				R_SleepTime = 0;							
 							//if(ClockFnMap[CLOCK_FLAG_SNOOZE].get())ClockFnMap[CLOCK_FLAG_SNOOZE].set(0,0);
 							break;
 						}

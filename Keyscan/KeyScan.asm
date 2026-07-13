@@ -508,6 +508,9 @@ Enable_NewKey:
 	 BNE	?L_HandleCancel
 	 ; 正倒计时响铃不走贪睡
 	?L_SnoozeCommon:
+	 ; 贪睡次数已用完则仅停止响铃,不再设置贪睡(防止图标残留闪烁)
+	 LDA	R_SnoozeCount
+	 BEQ	?L_HandleCancel
 	 LDA	#C_SnoozeInterval
 	 STA	R_SleepTime
 	 %bits	R_OtherFlag,(D_EnableSnooze+D_ToneDIS)
@@ -517,8 +520,9 @@ Enable_NewKey:
 	 %btst	R_OtherFlag,D_EnableSnooze,?L_HandleCancel
 	 RTS
 	?L_HandleCancel:
-	 ; 取消贪睡/关闭闹钟
-	 %bitr	R_OtherFlag,D_EnableSnooze
+	 ; 取消贪睡/关闭闹钟:停止响铃+清除贪睡标志
+	 %bitr	R_OtherFlag,(D_EnableSnooze+D_Alarming)
+	 %bits	R_OtherFlag,D_ToneDIS
 	?L_SnoozeDone:
 	 	%bits	R_KeyFlag,D_KeyRelDis				
 	 ?L_Exit:
@@ -1913,7 +1917,6 @@ T_key_Month_Table:
 ;        ; 4.3 温度阈值判断（TEMP_INTEGAH为温度绝对值）
 ;    
 ;    ; 步骤5：基于BCD码判断阈值（核心修正！）
-;    ; 5.1 判断是否>70℃（BCD：十位>7 或 十位=7且个位>0）
 ;    LDA  OUT_M
 ;    CMP  #C_TEMP_HH  ; 比较十位（7）
 ;    BCS  ?SetTempHH        ; 十位>7 → 肯定>70℃
