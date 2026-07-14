@@ -24,16 +24,15 @@
 ; 常量定义
 ;==========================================
 ;--- 档位阈值（已减去 VSS 偏移后的 12-bit 值，VREF=3.2V，2:1 分压）---
+; 4.0V -> PIN=2.0V -> (2000*4095/3200) = 2559 = 0x09_FF
 ; 3.8V -> PIN=1.9V -> (1900*4095/3200) = 2431 = 0x09_7F
-; 3.6V -> PIN=1.8V -> (1800*4095/3200) = 2303 = 0x08_FF
-; 3.4V -> PIN=1.7V -> (1700*4095/3200) = 2175 = 0x08_7F	;整体调高20H
+; 3.6V -> PIN=1.8V -> (1800*4095/3200) = 2303 = 0x08_FF	;整体调高20H
+C_ADC_Bat40V_HB		.EQU	0AH		; >=4.0V 高字节
+C_ADC_Bat40V_MB		.EQU	1FH		; >=4.0V 低字节
 C_ADC_Bat38V_HB		.EQU	09H		; >=3.8V 高字节
-C_ADC_Bat38V_MB		.EQU	9FH;	7FH		; >=3.8V 低字节
-C_ADC_Bat36V_HB		.EQU	09H	;	08H		; >=3.6V 高字节
-C_ADC_Bat36V_MB		.EQU	1FH;	0FFH	; >=3.6V 低字节
-C_ADC_Bat34V_HB		.EQU	08H		; >=3.4V 高字节
-C_ADC_Bat34V_MB		.EQU	9FH;	7FH		; >=3.4V 低字节
-
+C_ADC_Bat38V_MB		.EQU	9FH		; >=3.8V 低字节
+C_ADC_Bat36V_HB		.EQU	09H		; >=3.6V 高字节
+C_ADC_Bat36V_MB		.EQU	1FH		; >=3.6V 低字节
 ;==========================================
 ; 导出声明
 ;==========================================
@@ -117,7 +116,7 @@ L_DCDet_Exit:
 ; 描述: 电池电压检测主函数
 ;       1. 采集 VSS（零偏校准）
 ;       2. 采集 PB7（经 2:1 分压的电池电压）
-;       3. 公式换算后判断 3.8V / 3.6V / 3.4V 档位
+;       3. 公式换算后判断 4.0V / 3.8V / 3.6V 档位
 ;       4. 更新 R_LVDStatus, R_Charge, R_KeyFlag
 ; 调用: 主循环或定时器中周期性调用
 ;==========================================================================
@@ -265,20 +264,36 @@ _F_DC_Det:
 
 		;==================================================
 		; 步骤7: 16位档位判断（先比高字节，再比低字节）
-		; 阈值基于: VREF=3.2V, 2:1分压
-		;   3.8V -> 0x097F, 3.6V -> 0x08FF, 3.4V -> 0x087F
+		; 阈值基于: VREF=3.2V, 2:1分压，整体调高 0x20
+		;   4.0V -> 0x0A1F, 3.8V -> 0x099F, 3.6V -> 0x091F
 		;==================================================
 
-		;--- 判断是否 >= 3.8V ---
+		;--- 判断是否 >= 4.0V ---
 		LDA		R_ADC_LineIn_HB
-		CMP		#C_ADC_Bat38V_HB
-		BCC		?L_Check36V			; HB < 阈值，检查下一档
+		CMP		#C_ADC_Bat40V_HB
+		BCC		?L_Check38V			; HB < 阈值，检查下一档
 		BNE		?L_Bat_Level1		; HB > 阈值，确定 Level1
 		LDA		R_ADC_LineIn_MB		; HB 相等，比较 MB
-		CMP		#C_ADC_Bat38V_MB
-		BCC		?L_Check36V
+		CMP		#C_ADC_Bat40V_MB
+		BCC		?L_Check38V
 ?L_Bat_Level1:
 		LDA		#D_BatLevel1
+		STA		R_LVDStatus
+		%bitr	R_Charge, D_LowPower
+		%bits	R_KeyFlag, D_UpdateBAT
+		JMP		?L_DCDet_Exit
+
+		;--- 判断是否 >= 3.8V ---
+?L_Check38V:
+		LDA		R_ADC_LineIn_HB
+		CMP		#C_ADC_Bat38V_HB
+		BCC		?L_Check36V
+		BNE		?L_Bat_Level2
+		LDA		R_ADC_LineIn_MB
+		CMP		#C_ADC_Bat38V_MB
+		BCC		?L_Check36V
+?L_Bat_Level2:
+		LDA		#D_BatLevel2
 		STA		R_LVDStatus
 		%bitr	R_Charge, D_LowPower
 		%bits	R_KeyFlag, D_UpdateBAT
@@ -288,26 +303,10 @@ _F_DC_Det:
 ?L_Check36V:
 		LDA		R_ADC_LineIn_HB
 		CMP		#C_ADC_Bat36V_HB
-		BCC		?L_Check34V
-		BNE		?L_Bat_Level2
-		LDA		R_ADC_LineIn_MB
-		CMP		#C_ADC_Bat36V_MB
-		BCC		?L_Check34V
-?L_Bat_Level2:
-		LDA		#D_BatLevel2
-		STA		R_LVDStatus
-		%bitr	R_Charge, D_LowPower
-		%bits	R_KeyFlag, D_UpdateBAT
-		JMP		?L_DCDet_Exit
-
-		;--- 判断是否 >= 3.4V ---
-?L_Check34V:
-		LDA		R_ADC_LineIn_HB
-		CMP		#C_ADC_Bat34V_HB
 		BCC		?L_Bat_LowPower
 		BNE		?L_Bat_Level3
 		LDA		R_ADC_LineIn_MB
-		CMP		#C_ADC_Bat34V_MB
+		CMP		#C_ADC_Bat36V_MB
 		BCC		?L_Bat_LowPower
 ?L_Bat_Level3:
 		LDA		#D_BatLevel3
@@ -316,7 +315,7 @@ _F_DC_Det:
 		%bits	R_KeyFlag, D_UpdateBAT
 		JMP		?L_DCDet_Exit
 
-		;--- 低于 3.4V，低电标志 ---
+		;--- 低于 3.6V，低电标志 ---
 ?L_Bat_LowPower:
 		LDA		#00H
 		STA		R_LVDStatus

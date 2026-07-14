@@ -177,7 +177,6 @@
 			Path=".\\lcd\\lcd_user.inc"
 			Path=".\\Release\\_Combine_.lik"
 			Path=".\\Timer\\Timer.c"
-			Path=".\\UART\\UART_Rx.h"
 			Path=".\\ADC\\ADC.h"
 			Path=".\\GPL815P.inc"
 			Path=".\\Keyscan\\keyscan_user.inc"
@@ -190,9 +189,10 @@
 			Path=".\\GPL815PXx_Calendar_6502C.lik"
 			Path=".\\ADC\\ADC.asm"
 			Path=".\\Keyscan\\KeyScan.asm"
-			Path=".\\Release\\IT31023A_Report.html"
 			Path=".\\lcd\\lcd.tab"
-			State="8,255,255"
+			Path=".\\Release\\IT31023A_Report.html"
+			Path=".\\UART\\UART_Rx.h"
+			State="71,1707,1707"
 		</OpenFiles>
 		<OpenFolders>
 			<{573B84F6-3F64-4218-A5DC-6D7D42DAB8F0}>

@@ -245,7 +245,6 @@ _F_24HourClock:
 	
 	INC		R_DateMinute
 ;	JSR		F_OpenData					;´ò¿ªÎÂÊª¶È¼ì²â
-	jsr		F_CheckAlarm				;check alarm	
 	LDA		R_DateMinute
 	STA		R_LCDMinuBuff
 	
@@ -328,6 +327,7 @@ _F_24HourClock:
 	sta	R_Year+1					;the min year is 1000
 	
 L_minute_end:
+	JSR		F_CheckAlarm				;check alarm after minute/hour carry
 ;	JSR		F_JudegAlarm
 	%bits RB_Lcd_Updata_Flag,D_LcdUpdate;	
 L_24HourClockEnd:
